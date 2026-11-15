@@ -1,0 +1,106 @@
+@model SachVatLiFormViewModel
+
+@if (Model.MaSach is not null)
+{
+    <input type="hidden" asp-for="MaSach" />
+}
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+<div class="row g-3">
+    <div class="col-12">
+        <label asp-for="TenTaiLieu" class="form-label"></label>
+        <input asp-for="TenTaiLieu" class="form-control" placeholder="Ví dụ: Giáo trình Cơ sở dữ liệu" />
+        <span asp-validation-for="TenTaiLieu" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="TacGia" class="form-label"></label>
+        <select asp-for="TacGia" class="form-select">
+            <option value="">-- Chọn tác giả --</option>
+            @foreach (var tacGia in Model.DanhSachTacGia)
+            {
+                <option value="@tacGia" selected="@(string.Equals(Model.TacGia, tacGia, StringComparison.OrdinalIgnoreCase) ? "selected" : null)">@tacGia</option>
+            }
+        </select>
+        <span asp-validation-for="TacGia" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="NhaXuatBan" class="form-label"></label>
+        <input asp-for="NhaXuatBan" class="form-control" />
+        <span asp-validation-for="NhaXuatBan" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="NamXuatBan" class="form-label"></label>
+        <input asp-for="NamXuatBan" class="form-control" type="number" min="1000" max="2100" />
+        <span asp-validation-for="NamXuatBan" class="text-danger"></span>
+    </div>
+    <div class="col-md-8">
+        <label asp-for="DanhMuc" class="form-label"></label>
+        <select asp-for="DanhMuc" class="form-select">
+            <option value="">-- Chọn danh mục --</option>
+            @foreach (var danhMuc in Model.DanhSachDanhMuc)
+            {
+                <option value="@danhMuc" selected="@(string.Equals(Model.DanhMuc, danhMuc, StringComparison.OrdinalIgnoreCase) ? "selected" : null)">@danhMuc</option>
+            }
+        </select>
+        <span asp-validation-for="DanhMuc" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-8">
+        <label asp-for="ViTriKeSach" class="form-label"></label>
+        <input asp-for="ViTriKeSach" class="form-control" maxlength="100"
+               placeholder="Ví dụ: Kệ A1 - Tầng 2" />
+        <span asp-validation-for="ViTriKeSach" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="TongSoLuong" class="form-label"></label>
+        <input asp-for="TongSoLuong" class="form-control" type="number" min="0" max="10000" />
+        <span asp-validation-for="TongSoLuong" class="text-danger"></span>
+        @if (Model.SoLuongKhaDungHienTai.HasValue)
+        {
+            <div class="form-text">
+                Khả dụng hiện tại: <strong>@Model.SoLuongKhaDungHienTai</strong> bản.
+                Số bản khả dụng sẽ tự điều chỉnh theo thay đổi tổng số lượng.
+            </div>
+        }
+    </div>
+
+    <div class="col-12">
+        <label asp-for="TepXemTruoc" class="form-label"></label>
+        <input asp-for="TepXemTruoc" type="file" class="form-control" accept=".pdf,.doc,.docx" />
+        <span asp-validation-for="TepXemTruoc" class="text-danger"></span>
+        <div class="form-text">
+            Tệp PDF/Word cho phép người đọc đọc thử nội dung trước khi mượn bản cứng (tối đa 25MB).
+            @if (Model.CoTepXemTruoc)
+            {
+                <span class="text-success">Sách đã có tệp đọc thử@(string.IsNullOrWhiteSpace(Model.DinhDangTepXemTruocHienTai) ? "" : $" ({Model.DinhDangTepXemTruocHienTai})") – tải lên tệp mới để thay thế.</span>
+            }
+        </div>
+    </div>
+
+    <div class="col-12">
+        <label asp-for="AnhBia" class="form-label"></label>
+        <input asp-for="AnhBia" type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp,.gif" />
+        <span asp-validation-for="AnhBia" class="text-danger"></span>
+        <div class="form-text">
+            Ảnh trang bìa giúp làm nổi bật sách và giúp người đọc nhận biết nội dung (tối đa 5MB).
+            @if (Model.CoAnhBia)
+            {
+                <span class="text-success">Sách đã có ảnh bìa – tải lên ảnh mới để thay thế.</span>
+            }
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.DuongDanAnhBiaHienTai))
+        {
+            <img src="@Model.DuongDanAnhBiaHienTai" alt="Ảnh bìa hiện tại" class="mt-2 rounded border" style="max-height: 160px;" />
+        }
+    </div>
+
+    <div class="col-12">
+        <label asp-for="GhiChu" class="form-label"></label>
+        <textarea asp-for="GhiChu" class="form-control" rows="2"></textarea>
+        <span asp-validation-for="GhiChu" class="text-danger"></span>
+    </div>
+</div>

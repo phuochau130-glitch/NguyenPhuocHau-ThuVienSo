@@ -1,0 +1,130 @@
+@model List<TaiLieu>
+@{
+    ViewData["Title"] = "Kiểm duyệt tài liệu đóng góp";
+    var trangThaiHienTai = (string?)ViewBag.TrangThai;
+    var tuKhoaHienTai = (string?)ViewBag.TuKhoa;
+    var danhSachTrangThai = new[]
+    {
+        TrangThaiDuyetTaiLieu.ChoDuyet, TrangThaiDuyetTaiLieu.DaDuyet, TrangThaiDuyetTaiLieu.TuChoi
+    };
+}
+
+<h3 class="mb-3">Kiểm duyệt tài liệu đóng góp</h3>
+
+<form method="get" class="card shadow-sm mb-4">
+    <div class="card-body row g-2">
+        <div class="col-md-4">
+            <input name="tuKhoa" value="@tuKhoaHienTai" class="form-control" placeholder="Mã tài liệu, tên tài liệu, tác giả..." />
+        </div>
+        <div class="col-md-3">
+            <select name="trangThai" class="form-select">
+                <option value="">-- Tất cả trạng thái --</option>
+                @foreach (var tt in danhSachTrangThai)
+                {
+                    <option value="@tt" selected="@(trangThaiHienTai == tt)">@tt</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Lọc</button>
+        </div>
+    </div>
+</form>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-warning">Không có tài liệu nào phù hợp với điều kiện lọc.</div>
+}
+else
+{
+    <p class="text-muted">Có <strong>@Model.Count</strong> tài liệu đóng góp.</p>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle bg-white">
+            <thead class="table-light">
+                <tr>
+                    <th>Mã</th>
+                    <th>Tên tài liệu</th>
+                    <th>Tác giả</th>
+                    <th>Người đăng</th>
+                    <th>Tệp</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var tl in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@tl.MaTaiLieu</td>
+                        <td>
+                            @tl.TenTaiLieu
+                            @if (tl.LaTaiLieuHanChe)
+                            {
+                                <span class="badge bg-warning text-dark">Giới hạn</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Không giới hạn</span>
+                            }
+                        </td>
+                        <td>@(tl.TacGia ?? "—")</td>
+                        <td>
+                            @if (tl.NguoiDang is not null)
+                            {
+                                @tl.NguoiDang.NguoiDung.HoTen
+                                <br />
+                                <small class="text-muted">@tl.NguoiDang.MaSinhVienHoacCanBo</small>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td>
+                            <small>
+                                @(tl.BanSo?.DinhDang ?? "—")
+                                @if (tl.BanSo?.DungLuongFile is not null)
+                                {
+                                    <span> · @tl.BanSo.DungLuongFile MB</span>
+                                }
+                            </small>
+                        </td>
+                        <td>
+                            <span class="badge @HienThi.LopTrangThai(tl.TrangThaiDuyet)">@tl.TrangThaiDuyet</span>
+                            @if (!string.IsNullOrWhiteSpace(tl.GhiChu))
+                            {
+                                <br />
+                                <small class="text-danger">@tl.GhiChu</small>
+                            }
+                        </td>
+                        <td>
+                            @if (tl.TrangThaiDuyet == TrangThaiDuyetTaiLieu.ChoDuyet)
+                            {
+                                <div class="d-flex flex-wrap gap-1">
+                                    <a class="btn btn-sm btn-outline-primary" asp-action="Xem" asp-route-id="@tl.MaTaiLieu">Xem nội dung</a>
+                                    <form asp-action="PheDuyet" method="post">
+                                        <input type="hidden" name="maTaiLieu" value="@tl.MaTaiLieu" />
+                                        <button type="submit" class="btn btn-sm btn-success">Duyệt</button>
+                                    </form>
+                                    <button class="btn btn-sm btn-outline-danger" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#tc-@tl.MaTaiLieu">Từ chối</button>
+                                </div>
+                                <div class="collapse mt-2" id="tc-@tl.MaTaiLieu">
+                                    <form asp-action="TuChoi" method="post" class="border rounded p-2 bg-light">
+                                        <input type="hidden" name="maTaiLieu" value="@tl.MaTaiLieu" />
+                                        <input name="lyDo" class="form-control form-control-sm mb-1" placeholder="Lý do từ chối" required />
+                                        <button type="submit" class="btn btn-sm btn-danger">Xác nhận từ chối</button>
+                                    </form>
+                                </div>
+                            }
+                            else
+                            {
+                                <a class="btn btn-sm btn-outline-primary" asp-action="Xem" asp-route-id="@tl.MaTaiLieu">Xem nội dung</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

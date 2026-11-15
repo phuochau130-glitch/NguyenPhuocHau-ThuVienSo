@@ -1,0 +1,102 @@
+@model List<TaiLieu>
+@{
+    ViewData["Title"] = "Quản lý tài liệu số";
+    var tuKhoaHienTai = (string?)ViewBag.TuKhoa;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <h3 class="mb-0">Quản lý tài liệu số</h3>
+    <a class="btn btn-primary" asp-action="Them">+ Thêm tài liệu mới</a>
+</div>
+
+<form method="get" class="card shadow-sm mb-4">
+    <div class="card-body row g-2">
+        <div class="col-md-6">
+            <input name="tuKhoa" value="@tuKhoaHienTai" class="form-control"
+                   placeholder="Tìm theo mã tài liệu, tên tài liệu, tác giả..." />
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(tuKhoaHienTai))
+        {
+            <div class="col-md-2">
+                <a class="btn btn-outline-secondary w-100" asp-action="Index">Xóa lọc</a>
+            </div>
+        }
+    </div>
+</form>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-warning">Không có tài liệu số nào phù hợp với điều kiện tìm kiếm.</div>
+}
+else
+{
+    <p class="text-muted">Có <strong>@Model.Count</strong> tài liệu số trong kho.</p>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle bg-white">
+            <thead class="table-light">
+                <tr>
+                    <th>Mã</th>
+                    <th>Tên tài liệu</th>
+                    <th>Tác giả</th>
+                    <th>Danh mục</th>
+                    <th>Tệp</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var tl in Model)
+                {
+                    var banSo = tl.BanSo!;
+                    <tr>
+                        <td class="fw-semibold">@tl.MaTaiLieu</td>
+                        <td>
+                            @tl.TenTaiLieu
+                            @if (tl.LaTaiLieuHanChe)
+                            {
+                                <span class="badge bg-warning text-dark">Giới hạn</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Không giới hạn</span>
+                            }
+                        </td>
+                        <td>@(tl.TacGia ?? "—")</td>
+                        <td>@(tl.DanhMuc ?? "—")</td>
+                        <td>
+                            <small>
+                                @(banSo.DinhDang ?? "—")
+                                @if (banSo.DungLuongFile.HasValue)
+                                {
+                                    <span> · @banSo.DungLuongFile MB</span>
+                                }
+                            </small>
+                        </td>
+                        <td>
+                            <span class="badge @HienThi.LopTrangThai(tl.TrangThaiDuyet)">@tl.TrangThaiDuyet</span>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-1">
+                                <a class="btn btn-sm btn-outline-primary" asp-action="Sua" asp-route-id="@tl.MaTaiLieu">Sửa</a>
+                                <button type="button" class="btn btn-sm btn-outline-secondary"
+                                        data-xem-tai-lieu="@Url.Action("Xem", new { id = tl.MaTaiLieu })">Xem</button>
+                                <form asp-action="Xoa" method="post"
+                                      onsubmit="return confirm('Bạn chắc chắn muốn xóa tài liệu này khỏi kho?');">
+                                    <input type="hidden" name="maTaiLieuSo" value="@tl.MaTaiLieu" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@section Scripts {
+    <partial name="_ModalXem" />
+}

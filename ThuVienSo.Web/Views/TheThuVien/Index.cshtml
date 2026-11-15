@@ -1,0 +1,143 @@
+﻿@model TrangThaiTheViewModel
+@{
+    ViewData["Title"] = "Thẻ thư viện";
+}
+
+<h3 class="mb-3">Thẻ thư viện của tôi</h3>
+
+@if (Model.KhoaMuonDen.HasValue)
+{
+    <div class="alert alert-danger">
+        Bạn đang bị khóa quyền đăng ký mượn đến <strong>@Model.KhoaMuonDen.Value.ToString("dd/MM/yyyy HH:mm")</strong>
+        do không đến nhận sách trong thời hạn giữ sách (7 ngày).
+    </div>
+}
+
+@if (!Model.DaCoThe)
+{
+    <div class="alert alert-info">
+        Bạn chưa có thẻ thư viện. Hãy đăng ký trực tuyến để được thủ thư xét duyệt.
+    </div>
+    <a class="btn btn-primary" asp-action="DangKy">Đăng ký thẻ thư viện</a>
+}
+else
+{
+    var the = Model.The!;
+    <div class="row">
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Thông tin thẻ</h5>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Mã thẻ</dt>
+                        <dd class="col-sm-8">@the.MaThe</dd>
+
+                        <dt class="col-sm-4">Họ và tên</dt>
+                        <dd class="col-sm-8">@the.DocGia.NguoiDung.HoTen</dd>
+
+                        <dt class="col-sm-4">Email liên hệ</dt>
+                        <dd class="col-sm-8">@the.DocGia.NguoiDung.Email</dd>
+
+                        <dt class="col-sm-4">Số điện thoại</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(the.DocGia.NguoiDung.SoDienThoai) ? "—" : the.DocGia.NguoiDung.SoDienThoai)</dd>
+
+                        <dt class="col-sm-4">Mã sinh viên / cán bộ</dt>
+                        <dd class="col-sm-8">@the.DocGia.MaSinhVienHoacCanBo</dd>
+
+                        <dt class="col-sm-4">Khoa / Bộ môn</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(the.DocGia.Khoa) ? "—" : the.DocGia.Khoa)</dd>
+
+                        <dt class="col-sm-4">Ngày cấp</dt>
+                        <dd class="col-sm-8">@the.NgayCap.ToString("dd/MM/yyyy")</dd>
+
+                        <dt class="col-sm-4">Ngày gia hạn</dt>
+                        <dd class="col-sm-8">@HienThi.Ngay(the.NgayGiaHan)</dd>
+
+                        <dt class="col-sm-4">Ngày hết hạn</dt>
+                        <dd class="col-sm-8">@the.NgayHetHan.ToString("dd/MM/yyyy")</dd>
+
+                        <dt class="col-sm-4">Lệ phí</dt>
+                        <dd class="col-sm-8">@HienThi.Tien(the.LePhi > 0 ? the.LePhi : QuyDinh.LePhiTheThuVien) / năm</dd>
+
+                        <dt class="col-sm-4">Thanh toán lệ phí</dt>
+                        <dd class="col-sm-8">
+                            @if (the.DaThanhToan)
+                            {
+                                <span class="badge bg-success">Đã thanh toán</span>
+                                @if (the.NgayThanhToan.HasValue)
+                                {
+                                    <small class="text-muted d-block">@HienThi.NgayGio(the.NgayThanhToan)</small>
+                                }
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Chưa thanh toán</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">Trạng thái</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @HienThi.LopTrangThai(the.TrangThai)">@the.TrangThai</span>
+                        </dd>
+
+                        @if (!string.IsNullOrWhiteSpace(the.GhiChu))
+                        {
+                            <dt class="col-sm-4">Ghi chú</dt>
+                            <dd class="col-sm-8 text-danger">@the.GhiChu</dd>
+                        }
+                    </dl>
+                    <div class="mt-3">
+                        <a class="btn btn-outline-primary btn-sm" asp-action="ChinhSua">Chỉnh sửa thông tin thẻ</a>
+                    </div>
+                    @if (!the.DaThanhToan)
+                    {
+                        <div class="alert alert-warning mt-3 mb-2">
+                            Bạn chưa thanh toán lệ phí cấp thẻ. Hồ sơ chỉ được thủ thư duyệt sau khi thanh toán.
+                        </div>
+                        <a class="btn btn-success btn-sm" asp-action="ThanhToan">Thanh toán lệ phí</a>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            @if (the.ConHieuLuc)
+            {
+                <div class="alert alert-success mb-0">Thẻ còn hiệu lực. Bạn có thể đăng ký mượn sách vật lý.</div>
+            }
+            else if (the.DaHetHan)
+            {
+                <div class="alert alert-warning">
+                    Thẻ thư viện đã hết hạn ngày <strong>@the.NgayHetHan.ToString("dd/MM/yyyy")</strong>.
+                    Vui lòng đăng ký lại để tiếp tục sử dụng dịch vụ mượn sách.
+                </div>
+                <a class="btn btn-primary" asp-action="DangKy">Vui lòng đăng ký lại</a>
+            }
+            else if (the.TrangThai == TrangThaiThe.ChoDuyet)
+            {
+                <div class="alert alert-info mb-0">
+                    @if (the.DaThanhToan)
+                    {
+                        <span>Đã thanh toán lệ phí. Hồ sơ đang chờ thủ thư duyệt và kiểm tra.</span>
+                    }
+                    else
+                    {
+                        <span>Hồ sơ đang chờ thủ thư xét duyệt. Vui lòng hoàn tất thanh toán lệ phí để được duyệt.</span>
+                    }
+                </div>
+            }
+            else if (the.TrangThai == TrangThaiThe.TuChoi)
+            {
+                <div class="alert alert-danger">
+                    Hồ sơ thẻ đã bị từ chối. Hãy kiểm tra ghi chú của thủ thư, cập nhật hồ sơ rồi gửi đăng ký lại.
+                </div>
+                <a class="btn btn-primary" asp-action="DangKy">Gửi đăng ký lại</a>
+            }
+            else
+            {
+                <div class="alert alert-warning mb-0">
+                    Thẻ hiện không ở trạng thái hoạt động nên chưa thể đăng ký mượn sách. Vui lòng liên hệ thủ thư.
+                </div>
+            }
+        </div>
+    </div>
+}

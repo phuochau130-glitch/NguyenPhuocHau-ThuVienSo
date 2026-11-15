@@ -1,0 +1,171 @@
+@model List<PhieuMuon>
+@{
+    ViewData["Title"] = "Mượn / Trả sách";
+    var trangThaiHienTai = (string?)ViewBag.TrangThai;
+    var tuKhoaHienTai = (string?)ViewBag.TuKhoa;
+    var danhSachTrangThai = new[]
+    {
+        TrangThaiPhieuMuon.ChoDuyet, TrangThaiPhieuMuon.DangGiu, TrangThaiPhieuMuon.DangMuon,
+        TrangThaiPhieuMuon.DaTra, TrangThaiPhieuMuon.ChuaNhan, TrangThaiPhieuMuon.DaHuy,
+        TrangThaiPhieuMuon.TuChoi
+    };
+    var homNay = DateOnly.FromDateTime(DateTime.Today);
+}
+
+<h3 class="mb-3">Quản lý mượn / trả sách</h3>
+
+<form method="get" class="card shadow-sm mb-4">
+    <div class="card-body row g-2">
+        <div class="col-md-4">
+            <input name="tuKhoa" value="@tuKhoaHienTai" class="form-control" placeholder="Mã phiếu, tên độc giả, tên sách..." />
+        </div>
+        <div class="col-md-3">
+            <select name="trangThai" class="form-select">
+                <option value="">-- Tất cả trạng thái --</option>
+                @foreach (var tt in danhSachTrangThai)
+                {
+                    <option value="@tt" selected="@(trangThaiHienTai == tt)">@tt</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Lọc</button>
+        </div>
+    </div>
+</form>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-warning">Không có phiếu mượn nào phù hợp với điều kiện lọc.</div>
+}
+else
+{
+    <p class="text-muted">Có <strong>@Model.Count</strong> phiếu mượn.</p>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle bg-white">
+            <thead class="table-light">
+                <tr>
+                    <th>Mã phiếu</th>
+                    <th>Độc giả</th>
+                    <th>Sách</th>
+                    <th>Ngày mượn</th>
+                    <th>Thời hạn mượn</th>
+                    <th>Hạn trả</th>
+                    <th>Trạng thái</th>
+                    <th>Tiền phạt</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model)
+                {
+                    var quaHan = p.TrangThai == TrangThaiPhieuMuon.DangMuon && p.NgayPhaiTra < homNay;
+                    var soNgayTre = Math.Max(0, homNay.DayNumber - p.NgayPhaiTra.DayNumber);
+                    var phatTraTreGoiY = soNgayTre * QuyDinh.PhatMoiNgay;
+                    <tr>
+                        <td class="fw-semibold">@p.MaPhieu</td>
+                        <td>
+                            @p.DocGia.NguoiDung.HoTen<br />
+                            <small class="text-muted">@p.DocGia.MaSinhVienHoacCanBo</small>
+                        </td>
+                        <td>@p.Sach.TaiLieu.TenTaiLieu</td>
+                        <td>@HienThi.NgayGio(p.NgayMuon)</td>
+                        <td>@(p.SoNgayMuon > 0 ? $"{p.SoNgayMuon} ngày" : "—")</td>
+                        <td>
+                            @HienThi.Ngay(p.NgayPhaiTra)
+                            @if (quaHan)
+                            {
+                                <span class="badge bg-danger">Quá hạn @soNgayTre ngày</span>
+                            }
+                        </td>
+                        <td>
+                            <span class="badge @HienThi.LopTrangThai(p.TrangThai)">@p.TrangThai</span>
+                            @if (p.TrangThai == TrangThaiPhieuMuon.ChuaNhan)
+                            {
+                                <small class="text-danger d-block">Độc giả không đến nhận trong thời gian giữ sách</small>
+                            }
+                        </td>
+                        <td>
+                            @if (p.TienPhat > 0)
+                            {
+                                <div class="fw-semibold text-danger">@HienThi.Tien(p.TienPhat)</div>
+                                if (p.TienPhatTraTre > 0)
+                                {
+                                    <small class="text-muted d-block">Trả trễ: @HienThi.Tien(p.TienPhatTraTre)</small>
+                                }
+                                if (p.TienPhatHuHong > 0)
+                                {
+                                    <small class="text-muted d-block">Hư hỏng: @HienThi.Tien(p.TienPhatHuHong)</small>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td>
+                            @if (p.TrangThai == TrangThaiPhieuMuon.ChoDuyet)
+                            {
+                                <div class="d-flex flex-wrap gap-1 mb-1">
+                                    <form asp-action="DuyetGiu" method="post">
+                                        <input type="hidden" name="maPhieu" value="@p.MaPhieu" />
+                                        <button type="submit" class="btn btn-sm btn-success">Duyệt giữ sách</button>
+                                    </form>
+                                    <button class="btn btn-sm btn-outline-danger" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#tc-@p.MaPhieu">Từ chối</button>
+                                </div>
+                                <div class="collapse" id="tc-@p.MaPhieu">
+                                    <form asp-action="TuChoi" method="post" class="border rounded p-2 bg-light">
+                                        <input type="hidden" name="maPhieu" value="@p.MaPhieu" />
+                                        <input name="lyDo" class="form-control form-control-sm mb-1" placeholder="Lý do từ chối" required />
+                                        <button type="submit" class="btn btn-sm btn-danger">Xác nhận từ chối</button>
+                                    </form>
+                                </div>
+                            }
+                            else if (p.TrangThai == TrangThaiPhieuMuon.DangGiu)
+                            {
+                                <form asp-action="GiaoSach" method="post">
+                                    <input type="hidden" name="maPhieu" value="@p.MaPhieu" />
+                                    <button type="submit" class="btn btn-sm btn-primary">Xác nhận giao sách</button>
+                                </form>
+                            }
+                            else if (p.TrangThai == TrangThaiPhieuMuon.DangMuon)
+                            {
+                                <form asp-action="NhanTra" method="post">
+                                    <input type="hidden" name="maPhieu" value="@p.MaPhieu" />
+                                    <div class="d-flex flex-wrap gap-1">
+                                        <button type="submit" class="btn btn-sm btn-success">Nhận trả</button>
+                                        <button class="btn btn-sm btn-outline-warning" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#phat-@p.MaPhieu">
+                                            Phạt
+                                        </button>
+                                    </div>
+                                    <div class="collapse mt-1" id="phat-@p.MaPhieu">
+                                        <div class="border rounded p-2 bg-light" style="min-width:230px;">
+                                            <label class="form-label small mb-1">Phạt trả sách trễ (VNĐ)</label>
+                                            <input type="number" name="phiTraTre" value="@phatTraTreGoiY" min="0" step="1000"
+                                                   class="form-control form-control-sm mb-1"
+                                                   title="Mặc định = @QuyDinh.PhatMoiNgay.ToString("N0") VNĐ × @soNgayTre ngày trễ" />
+                                            <label class="form-label small mb-1">Phạt hư hỏng sách (VNĐ)</label>
+                                            <input type="number" name="phiHuHong" value="0" min="0" step="1000"
+                                                   class="form-control form-control-sm" />
+                                            <div class="form-text">Bỏ trống phạt trả trễ nếu không phạt.</div>
+                                        </div>
+                                    </div>
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <p class="text-muted small">
+        Khi nhận trả sách, bấm nút <em>Phạt</em> để nhập tiền phạt <em>trả sách trễ</em> hoặc <em>hư hỏng sách</em>.
+        Tiền phạt trả trễ được gợi ý sẵn theo quy định (@HienThi.Tien(QuyDinh.PhatMoiNgay)/ngày).
+    </p>
+}

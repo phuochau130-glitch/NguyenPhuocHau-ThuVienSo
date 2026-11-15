@@ -1,0 +1,72 @@
+<div class="modal fade" id="hopThoaiXem" tabindex="-1" aria-labelledby="tieuDeHopThoaiXem" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tieuDeHopThoaiXem">Chi tiết tài liệu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body" id="noiDungHopThoaiXem">
+                <div class="text-center text-muted py-4">Đang tải…</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/docx-preview/jszip.min.js"></script>
+<script src="~/lib/docx-preview/docx-preview.min.js"></script>
+<script>
+    (function () {
+        var phanTu = document.getElementById('hopThoaiXem');
+        if (!phanTu) { return; }
+
+        var hopThoai = new bootstrap.Modal(phanTu);
+        var vungNoiDung = document.getElementById('noiDungHopThoaiXem');
+
+        function hienThiTepWord() {
+            var vung = vungNoiDung.querySelector('[data-docx-src]');
+            if (!vung || typeof docx === 'undefined') { return; }
+
+            var url = vung.getAttribute('data-docx-src');
+            vung.innerHTML = '<div class="text-center py-4"><div class="spinner-border spinner-border-sm" role="status"></div><div class="mt-2">Đang tải nội dung Word...</div></div>';
+
+            fetch(url)
+                .then(function (phanHoi) {
+                    if (!phanHoi.ok) { throw new Error('Không tải được tệp Word.'); }
+                    return phanHoi.blob();
+                })
+                .then(function (blob) {
+                    return docx.renderAsync(blob, vung, null, {
+                        inWrapper: true,
+                        breakPages: true,
+                        experimental: true
+                    });
+                })
+                .catch(function () {
+                    vung.innerHTML = '<div class="alert alert-danger mb-0">Không hiển thị được tệp Word.</div>';
+                });
+        }
+
+        document.querySelectorAll('[data-xem-tai-lieu]').forEach(function (nut) {
+            nut.addEventListener('click', function () {
+                vungNoiDung.innerHTML = '<div class="text-center text-muted py-4">Đang tải…</div>';
+                hopThoai.show();
+
+                fetch(nut.getAttribute('data-xem-tai-lieu'), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(function (phanHoi) {
+                        if (!phanHoi.ok) { throw new Error('Không tải được thông tin tài liệu.'); }
+                        return phanHoi.text();
+                    })
+                    .then(function (html) {
+                        vungNoiDung.innerHTML = html;
+                        hienThiTepWord();
+                    })
+                    .catch(function (loi) {
+                        vungNoiDung.innerHTML = '<div class="alert alert-danger mb-0">' + loi.message + '</div>';
+                    });
+            });
+        });
+    })();
+</script>

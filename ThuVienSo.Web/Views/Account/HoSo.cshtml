@@ -1,0 +1,76 @@
+﻿@model HoSoCaNhanViewModel
+@{
+    ViewData["Title"] = "Hồ sơ cá nhân";
+}
+
+<h3 class="mb-3">Hồ sơ cá nhân</h3>
+
+<div class="row">
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Mã người dùng</dt>
+                    <dd class="col-sm-8">@Model.MaNguoiDung</dd>
+
+                    <dt class="col-sm-4">Họ và tên</dt>
+                    <dd class="col-sm-8">@Model.HoTen</dd>
+
+                    <dt class="col-sm-4">Email</dt>
+                    <dd class="col-sm-8">@Model.Email</dd>
+
+                    <dt class="col-sm-4">Số điện thoại</dt>
+                    <dd class="col-sm-8">@(Model.SoDienThoai ?? "—")</dd>
+
+                    <dt class="col-sm-4">Vai trò</dt>
+                    <dd class="col-sm-8"><span class="badge bg-primary">@Model.VaiTro</span></dd>
+
+                    <dt class="col-sm-4">Trạng thái tài khoản</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge @HienThi.LopTrangThai(Model.TrangThai)">@Model.TrangThai</span>
+                    </dd>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.MaSinhVienHoacCanBo))
+                    {
+                        <dt class="col-sm-4">Mã sinh viên / cán bộ</dt>
+                        <dd class="col-sm-8">@Model.MaSinhVienHoacCanBo</dd>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Khoa))
+                    {
+                        <dt class="col-sm-4">Khoa / Bộ môn</dt>
+                        <dd class="col-sm-8">@Model.Khoa</dd>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(Model.MaNhanVien))
+                    {
+                        <dt class="col-sm-4">Mã nhân viên</dt>
+                        <dd class="col-sm-8">@Model.MaNhanVien</dd>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(Model.BoPhan))
+                    {
+                        <dt class="col-sm-4">Bộ phận</dt>
+                        <dd class="col-sm-8">@Model.BoPhan</dd>
+                    }
+                </dl>
+
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    <a class="btn btn-primary" asp-action="SuaHoSo">Sửa thông tin</a>
+                    <a class="btn btn-outline-primary" asp-action="DoiMatKhau">Đổi mật khẩu</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.KhoaMuonDen.HasValue)
+    {
+        <div class="col-md-5">
+            <div class="alert alert-danger">
+                <strong>Cảnh báo:</strong> Bạn đang bị khóa quyền đăng ký mượn sách đến
+                <strong>@Model.KhoaMuonDen.Value.ToString("dd/MM/yyyy HH:mm")</strong>
+                do không đến nhận sách trong thời hạn giữ sách (7 ngày).
+            </div>
+        </div>
+    }
+</div>

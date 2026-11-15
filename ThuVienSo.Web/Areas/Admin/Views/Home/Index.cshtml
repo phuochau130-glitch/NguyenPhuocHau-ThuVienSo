@@ -1,0 +1,232 @@
+@model BangDieuKhienAdminViewModel
+@{
+    ViewData["Title"] = "Bảng điều khiển";
+}
+
+<h3 class="mb-1">Bảng điều khiển quản trị</h3>
+<p class="text-muted">Giám sát tổng thể hoạt động của hệ thống thư viện số.</p>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm h-100 border-start border-4 border-primary">
+            <div class="card-body">
+                <div class="text-muted">Tổng số tài khoản</div>
+                <div class="display-6 fw-bold text-primary">@Model.TongTaiKhoan</div>
+                <a class="btn btn-sm btn-outline-primary mt-2" asp-controller="NguoiDung" asp-action="Index">Quản lý tài khoản</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm h-100 border-start border-4 border-success">
+            <div class="card-body">
+                <div class="text-muted">Tài khoản đang hoạt động</div>
+                <div class="display-6 fw-bold text-success">@Model.TaiKhoanHoatDong</div>
+                <a class="btn btn-sm btn-outline-success mt-2" asp-controller="NguoiDung" asp-action="Index"
+                   asp-route-trangThai="hoatdong">Xem danh sách</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm h-100 border-start border-4 border-secondary">
+            <div class="card-body">
+                <div class="text-muted">Tổng lượt đăng nhập</div>
+                <div class="display-6 fw-bold text-secondary">@Model.TongLuotDangNhap</div>
+                <a class="btn btn-sm btn-outline-secondary mt-2" asp-controller="NhatKy" asp-action="Index">Nhật ký hoạt động</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm h-100 border-start border-4 border-danger">
+            <div class="card-body">
+                <div class="text-muted">Tài khoản bị khóa</div>
+                <div class="display-6 fw-bold text-danger">@Model.TaiKhoanBiKhoa</div>
+                <a class="btn btn-sm btn-outline-danger mt-2" asp-controller="NguoiDung" asp-action="Index"
+                   asp-route-trangThai="khoa">Xem danh sách</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h5 class="mb-3">Thống kê lượt xem, tải và mượn trả</h5>
+<div class="row g-3 mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted">Kho tài liệu số</div>
+                <div class="fs-3 fw-bold text-primary">@Model.ThongKe.SoTaiLieuSo</div>
+                <div class="small text-muted">@Model.ThongKe.SoSachVatLi sách vật lý</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted">Tổng lượt xem / đọc</div>
+                <div class="fs-3 fw-bold text-info">@Model.ThongKe.TongLuotXem</div>
+                <div class="small text-muted">
+                    Số: @Model.ThongKe.LuotXemTaiLieuSo · Vật lý: @Model.ThongKe.LuotXemSachVatLi
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted">Tổng lượt tải tài liệu số</div>
+                <div class="fs-3 fw-bold text-info">@Model.ThongKe.TongLuotTai</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted">Lượt mượn / trả</div>
+                <div class="fs-3 fw-bold text-warning">@Model.ThongKe.TongLuotMuon / @Model.ThongKe.TongLuotTra</div>
+                <div class="small text-muted">Tổng tiền phạt: @Model.ThongKe.TongTienPhat.ToString("N0") VNĐ</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white fw-semibold">Tài liệu được mượn nhiều nhất</div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead class="table-light">
+                        <tr><th>Tên tài liệu</th><th class="text-end">Lượt mượn</th></tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.ThongKe.SachMuonNhieuNhat.Count == 0)
+                        {
+                            <tr><td colspan="2" class="text-muted">Chưa có dữ liệu.</td></tr>
+                        }
+                        else
+                        {
+                            @foreach (var s in Model.ThongKe.SachMuonNhieuNhat)
+                            {
+                                <tr><td>@s.TenSach</td><td class="text-end">@s.SoLuotMuon</td></tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white fw-semibold">Tài liệu được xem/đọc nhiều nhất</div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead class="table-light">
+                        <tr><th>Mã</th><th>Tên tài liệu</th><th>Loại</th><th class="text-end">Lượt xem</th></tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.ThongKe.TaiLieuXemNhieuNhat.Count == 0)
+                        {
+                            <tr><td colspan="4" class="text-muted">Chưa có dữ liệu.</td></tr>
+                        }
+                        else
+                        {
+                            @foreach (var t in Model.ThongKe.TaiLieuXemNhieuNhat)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@t.MaTaiLieu</td>
+                                    <td>@t.TenTaiLieu</td>
+                                    <td><span class="badge bg-secondary">@t.LoaiTaiLieu</span></td>
+                                    <td class="text-end">@t.SoLuotXem</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">Hoạt động đăng nhập gần đây</span>
+        <a class="btn btn-sm btn-outline-secondary" asp-controller="NhatKy" asp-action="Index">Xem tất cả</a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Thời điểm</th>
+                        <th>Mã</th>
+                        <th>Người dùng</th>
+                        <th>Hành động</th>
+                        <th>Địa chỉ IP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.DanhSachDangNhap.Count == 0)
+                    {
+                        <tr><td colspan="5" class="text-muted">Chưa ghi nhận hoạt động đăng nhập.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var k in Model.DanhSachDangNhap)
+                        {
+                            <tr>
+                                <td>@k.ThoiDiem.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="fw-semibold">@k.MaNguoiDung</td>
+                                <td>@(string.IsNullOrWhiteSpace(k.HoTen) ? "—" : k.HoTen)</td>
+                                <td><span class="badge bg-secondary">@k.HanhDong</span></td>
+                                <td>@(string.IsNullOrWhiteSpace(k.DiaChiIp) ? "—" : k.DiaChiIp)</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<h5 class="mb-3">Chi tiết theo nghiệp vụ (do thủ thư xử lý)</h5>
+<div class="row g-3">
+    <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <span>Thẻ chờ duyệt</span>
+                <span class="badge bg-warning text-dark fs-6">@Model.TheChoDuyet</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <span>Phiếu mượn chờ duyệt</span>
+                <span class="badge bg-warning text-dark fs-6">@Model.PhieuChoDuyet</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <span>Yêu cầu đọc chờ duyệt</span>
+                <span class="badge bg-warning text-dark fs-6">@Model.YeuCauChoDuyet</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <span>Tài liệu đóng góp chờ kiểm duyệt</span>
+                <span class="badge bg-warning text-dark fs-6">@Model.TaiLieuChoKiemDuyet</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card shadow-sm">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <span>Phiếu mượn quá hạn</span>
+                <span class="badge bg-danger fs-6">@Model.PhieuQuaHan</span>
+            </div>
+        </div>
+    </div>
+</div>

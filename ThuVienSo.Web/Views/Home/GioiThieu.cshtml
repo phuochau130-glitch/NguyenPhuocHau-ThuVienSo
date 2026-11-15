@@ -1,0 +1,67 @@
+@{
+    ViewData["Title"] = "Giới thiệu";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4 p-md-5">
+                <h2 class="fw-bold mb-3 text-primary">Giới thiệu hệ thống Thư viện số</h2>
+                <p class="lead">
+                    Hệ thống Quản lý Thư viện số được xây dựng nhằm hỗ trợ sinh viên, giảng viên
+                    tra cứu, mượn sách vật lý, đọc tài liệu số và đóng góp tài liệu nghiên cứu khoa học
+                    một cách nhanh chóng, tiện lợi trên môi trường trực tuyến.
+                </p>
+
+                <h4 class="mt-4 fw-semibold">🎯 Mục tiêu</h4>
+                <ul>
+                    <li>Tạo môi trường tra cứu và đọc tài liệu trực tuyến 24/7.</li>
+                    <li>Quản lý mượn/trả sách vật lý một cách minh bạch, tự động.</li>
+                    <li>Khuyến khích văn hóa đọc và chia sẻ tài liệu nghiên cứu khoa học.</li>
+                    <li>Hỗ trợ thủ thư và quản trị viên vận hành thư viện hiệu quả.</li>
+                </ul>
+
+                <h4 class="mt-4 fw-semibold">👥 Đối tượng sử dụng</h4>
+                <div class="row g-3 mt-1">
+                    <div class="col-md-6">
+                        <div class="border rounded p-3 h-100">
+                            <h6 class="fw-bold text-primary">Độc giả (Sinh viên / Giảng viên)</h6>
+                            <ul class="small mb-0">
+                                <li>Đăng ký thẻ thư viện</li>
+                                <li>Tra cứu &amp; mượn sách vật lý</li>
+                                <li>Đọc / tải tài liệu số</li>
+                                <li>Xin quyền đọc tài liệu giới hạn</li>
+                                <li>Đóng góp tài liệu NCKH</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="border rounded p-3 h-100">
+                            <h6 class="fw-bold" style="color:#1673c9;">Thủ thư &amp; Quản trị viên</h6>
+                            <ul class="small mb-0">
+                                <li>Duyệt thẻ thư viện, phiếu mượn</li>
+                                <li>Quản lý mượn/trả &amp; xử lý phạt</li>
+                                <li>Duyệt yêu cầu đọc tài liệu giới hạn</li>
+                                <li>Quản lý tài liệu số &amp; sách vật lý (thêm / sửa / xóa)</li>
+                                <li>Kiểm duyệt tài liệu đóng góp</li>
+                                <li>Thống kê, xuất báo cáo Excel</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <h4 class="mt-4 fw-semibold">⚙️ Công nghệ</h4>
+                <p class="mb-0">
+                    Hệ thống được phát triển trên nền tảng <strong>ASP.NET Core MVC (.NET 9)</strong>,
+                    sử dụng <strong>Entity Framework Core</strong> truy cập cơ sở dữ liệu SQL Server,
+                    giao diện tiếng Việt, phân quyền theo vai trò và bảo mật mật khẩu bằng
+                    thuật toán băm PBKDF2.
+                </p>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <a class="btn btn-primary btn-lg" asp-controller="TaiLieu" asp-action="TaiLieuSo">Bắt đầu khám phá tài liệu →</a>
+        </div>
+    </div>
+</div>

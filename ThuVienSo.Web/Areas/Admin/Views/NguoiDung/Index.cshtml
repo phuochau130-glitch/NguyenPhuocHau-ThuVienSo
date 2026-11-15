@@ -1,0 +1,170 @@
+@model DanhSachNguoiDungViewModel
+@{
+    ViewData["Title"] = "Quản lý tài khoản";
+    var danhSachVaiTro = new[] { VaiTro.SinhVien, VaiTro.GiangVien, VaiTro.ThuThu, VaiTro.Admin };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Quản lý tài khoản</h3>
+    <a class="btn btn-primary" asp-action="Them">Thêm tài khoản</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-start border-4 border-primary h-100">
+            <div class="card-body">
+                <div class="text-muted">Tổng số tài khoản</div>
+                <div class="fs-3 fw-bold text-primary">@Model.TongTaiKhoan</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-start border-4 border-success h-100">
+            <div class="card-body">
+                <div class="text-muted">Đang hoạt động</div>
+                <div class="fs-3 fw-bold text-success">@Model.DangHoatDong</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-start border-4 border-danger h-100">
+            <div class="card-body">
+                <div class="text-muted">Bị khóa</div>
+                <div class="fs-3 fw-bold text-danger">@Model.BiKhoa</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="get" class="card shadow-sm mb-4">
+    <div class="card-body row g-2">
+        <div class="col-md-4">
+            <input name="tuKhoa" value="@Model.TuKhoa" class="form-control" placeholder="Mã, họ tên hoặc email..." />
+        </div>
+        <div class="col-md-3">
+            <select name="vaiTro" class="form-select">
+                <option value="">-- Tất cả vai trò --</option>
+                @foreach (var vt in danhSachVaiTro)
+                {
+                    <option value="@vt" selected="@(Model.VaiTro == vt)">@VaiTro.TenHienThi(vt)</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="trangThai" class="form-select">
+                <option value="">-- Tất cả trạng thái --</option>
+                <option value="hoatdong" selected="@(Model.TrangThai == "hoatdong")">Đang hoạt động</option>
+                <option value="khoa" selected="@(Model.TrangThai == "khoa")">Bị khóa</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Lọc</button>
+        </div>
+    </div>
+</form>
+
+@if (Model.DanhSach.Count == 0)
+{
+    <div class="alert alert-warning">Không có tài khoản nào phù hợp.</div>
+}
+else
+{
+    <p class="text-muted">Có <strong>@Model.DanhSach.Count</strong> tài khoản.</p>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle bg-white">
+            <thead class="table-light">
+                <tr>
+                    <th>Mã</th>
+                    <th>Họ tên</th>
+                    <th>Email</th>
+                    <th>Vai trò</th>
+                    <th>Đơn vị</th>
+                    <th>Phiếu mượn</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var n in Model.DanhSach)
+                {
+                    <tr>
+                        <td class="fw-semibold">@n.MaNguoiDung</td>
+                        <td>
+                            @n.HoTen
+                            @if (!string.IsNullOrWhiteSpace(n.SoDienThoai))
+                            {
+                                <br />
+                                <small class="text-muted">@n.SoDienThoai</small>
+                            }
+                        </td>
+                        <td>@n.Email</td>
+                        <td><span class="badge bg-secondary">@VaiTro.TenHienThi(n.VaiTro)</span></td>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(n.MaSinhVienHoacCanBo))
+                            {
+                                <span>@n.MaSinhVienHoacCanBo</span>
+                                <br />
+                                <small class="text-muted">@(n.Khoa ?? "—")</small>
+                            }
+                            else if (!string.IsNullOrWhiteSpace(n.MaNhanVien))
+                            {
+                                <span>@n.MaNhanVien</span>
+                                <br />
+                                <small class="text-muted">@(n.BoPhan ?? "—")</small>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td>@n.SoPhieuMuon</td>
+                        <td><span class="badge @HienThi.LopTrangThai(n.TrangThai)">@n.TrangThai</span></td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-1">
+                                <a class="btn btn-sm btn-outline-primary" asp-action="Sua" asp-route-id="@n.MaNguoiDung">Sửa</a>
+                                <a class="btn btn-sm btn-outline-secondary" asp-action="DatLaiMatKhau" asp-route-id="@n.MaNguoiDung">Mật khẩu</a>
+                                <button class="btn btn-sm btn-outline-dark" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#nd-@n.MaNguoiDung">Khác</button>
+                            </div>
+                            <div class="collapse mt-2" id="nd-@n.MaNguoiDung">
+                                <div class="border rounded p-2 bg-light">
+                                    <form asp-action="DoiTrangThai" method="post" class="mb-2">
+                                        <input type="hidden" name="maNguoiDung" value="@n.MaNguoiDung" />
+                                        @if (n.TrangThai == TrangThaiNguoiDung.HoatDong)
+                                        {
+                                            <input type="hidden" name="trangThai" value="@TrangThaiNguoiDung.BiKhoa" />
+                                            <button type="submit" class="btn btn-sm btn-warning"
+                                                    @(n.VaiTro == VaiTro.Admin ? "disabled" : "")>Khóa tài khoản</button>
+                                        }
+                                        else
+                                        {
+                                            <input type="hidden" name="trangThai" value="@TrangThaiNguoiDung.HoatDong" />
+                                            <button type="submit" class="btn btn-sm btn-success">Mở khóa tài khoản</button>
+                                        }
+                                    </form>
+                                    <form asp-action="DoiVaiTro" method="post" class="mb-2">
+                                        <input type="hidden" name="maNguoiDung" value="@n.MaNguoiDung" />
+                                        <select name="vaiTroMoi" class="form-select form-select-sm mb-1">
+                                            @foreach (var vt in danhSachVaiTro)
+                                            {
+                                                <option value="@vt" selected="@(n.VaiTro == vt)">@VaiTro.TenHienThi(vt)</option>
+                                            }
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-primary"
+                                                @(n.VaiTro == VaiTro.Admin ? "disabled" : "")>Đổi vai trò</button>
+                                    </form>
+                                    <form asp-action="Xoa" method="post"
+                                          onsubmit="return confirm('Bạn chắc chắn muốn xóa tài khoản @n.MaNguoiDung?');">
+                                        <input type="hidden" name="maNguoiDung" value="@n.MaNguoiDung" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                @(n.CoTheXoa && n.VaiTro != VaiTro.Admin ? "" : "disabled")>Xóa tài khoản</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

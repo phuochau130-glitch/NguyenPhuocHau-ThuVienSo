@@ -1,0 +1,95 @@
+@model QuanLyDanhMucTacGiaViewModel
+@{
+    ViewData["Title"] = "Quản lý danh mục và tác giả";
+}
+
+<div class="mb-4">
+    <h1 class="h3 mb-1">Quản lý danh mục và tác giả</h1>
+    <p class="text-secondary mb-0">Danh sách dùng chung trong biểu mẫu thêm và sửa sách vật lý, tài liệu số.</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-xl-6">
+        <section class="card shadow-sm h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0">Danh mục</h2>
+                <span class="badge bg-primary">@Model.DanhMuc.Count</span>
+            </div>
+            <div class="card-body">
+                <form asp-action="ThemDanhMuc" method="post" class="input-group mb-3">
+                    <input name="ten" class="form-control" maxlength="100" required placeholder="Tên danh mục mới" />
+                    <button class="btn btn-primary" type="submit">Thêm danh mục</button>
+                </form>
+
+                @if (Model.DanhMuc.Count == 0)
+                {
+                    <p class="text-secondary mb-0">Chưa có danh mục.</p>
+                }
+                else
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var item in Model.DanhMuc)
+                        {
+                            <div class="list-group-item px-0">
+                                <div class="d-flex flex-wrap gap-2 align-items-center">
+                                    <form asp-action="SuaDanhMuc" method="post" class="d-flex flex-grow-1 gap-2">
+                                        <input type="hidden" name="id" value="@item.MaDanhMuc" />
+                                        <input name="ten" value="@item.TenDanhMuc" maxlength="100" required class="form-control" />
+                                        <button type="submit" class="btn btn-outline-primary">Lưu</button>
+                                    </form>
+                                    <form asp-action="XoaDanhMuc" method="post"
+                                          onsubmit="return confirm('Xóa danh mục này?');">
+                                        <input type="hidden" name="id" value="@item.MaDanhMuc" />
+                                        <button type="submit" class="btn btn-outline-danger">Xóa</button>
+                                    </form>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </section>
+    </div>
+
+    <div class="col-xl-6">
+        <section class="card shadow-sm h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0">Tác giả</h2>
+                <span class="badge bg-primary">@Model.TacGia.Count</span>
+            </div>
+            <div class="card-body">
+                <form asp-action="ThemTacGia" method="post" class="input-group mb-3">
+                    <input name="ten" class="form-control" maxlength="200" required placeholder="Tên tác giả mới" />
+                    <button class="btn btn-primary" type="submit">Thêm tác giả</button>
+                </form>
+
+                @if (Model.TacGia.Count == 0)
+                {
+                    <p class="text-secondary mb-0">Chưa có tác giả.</p>
+                }
+                else
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var item in Model.TacGia)
+                        {
+                            <div class="list-group-item px-0">
+                                <div class="d-flex flex-wrap gap-2 align-items-center">
+                                    <form asp-action="SuaTacGia" method="post" class="d-flex flex-grow-1 gap-2">
+                                        <input type="hidden" name="id" value="@item.MaTacGia" />
+                                        <input name="ten" value="@item.TenTacGia" maxlength="200" required class="form-control" />
+                                        <button type="submit" class="btn btn-outline-primary">Lưu</button>
+                                    </form>
+                                    <form asp-action="XoaTacGia" method="post"
+                                          onsubmit="return confirm('Xóa tác giả này?');">
+                                        <input type="hidden" name="id" value="@item.MaTacGia" />
+                                        <button type="submit" class="btn btn-outline-danger">Xóa</button>
+                                    </form>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </section>
+    </div>
+</div>

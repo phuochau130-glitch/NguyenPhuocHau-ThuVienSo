@@ -1,0 +1,512 @@
+@model BaoCaoThongKeViewModel
+@{
+    ViewData["Title"] = "Thống kê hệ thống";
+    var loai = Model.LoaiBaoCao;
+    var tatCa = string.IsNullOrWhiteSpace(loai);
+    var hienTongHop = tatCa || loai == "thongke";
+    var hienMuonTra = tatCa || loai == "muontra";
+    var hienPhat = tatCa || loai == "phat";
+    var hienTaiDoc = tatCa || loai == "taidoc";
+    var hienTaiKhoan = tatCa || loai == "taikhoan";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Thống kê hệ thống</h3>
+</div>
+
+<form method="get" class="card shadow-sm mb-4">
+    <div class="card-body row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">Từ ngày</label>
+            <input type="date" name="tuNgay" value="@Model.TuNgay?.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Đến ngày</label>
+            <input type="date" name="denNgay" value="@Model.DenNgay?.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Loại báo cáo</label>
+            <select name="loaiBaoCao" class="form-select">
+                <option value="" selected="@(tatCa)">-- Tất cả --</option>
+                <option value="taidoc" selected="@(loai == "taidoc")">Lượt tải - đọc tài liệu</option>
+                <option value="muontra" selected="@(loai == "muontra")">Mượn trả tài liệu</option>
+                <option value="phat" selected="@(loai == "phat")">Danh sách phạt tiền</option>
+                <option value="thongke" selected="@(loai == "thongke")">Tổng hợp số lượng tài liệu</option>
+                <option value="taikhoan" selected="@(loai == "taikhoan")">Truy cập và thay đổi tài khoản</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1">Xem thống kê</button>
+            <a class="btn btn-success" asp-action="XuatExcel"
+               asp-route-tuNgay="@Model.TuNgay?.ToString("yyyy-MM-dd")"
+               asp-route-denNgay="@Model.DenNgay?.ToString("yyyy-MM-dd")"
+               asp-route-loaiBaoCao="@loai">Xuất Excel</a>
+        </div>
+    </div>
+</form>
+
+@if (hienTongHop)
+{
+    <h5 class="mt-4">I. Thống kê nhanh - Số lượng tài liệu</h5>
+    <p class="small text-secondary">Tổng số tài liệu là số hiện có trên toàn hệ thống; bộ lọc ngày áp dụng cho các hoạt động phát sinh.</p>
+    <div class="row g-3">
+        <div class="col-md-6 col-lg-3">
+            <div class="card thong-ke-hop shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Tổng số tài liệu</div>
+                    <div class="fs-4 fw-bold">@Model.TaiLieu.TongSoTaiLieu</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card thong-ke-hop shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Sách vật lý / Tài liệu số</div>
+                    <div class="fs-4 fw-bold">@Model.TaiLieu.SoSachVatLi / @Model.TaiLieu.SoTaiLieuSo</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card thong-ke-hop shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Giới hạn / Không giới hạn</div>
+                    <div class="fs-4 fw-bold">@Model.TaiLieu.SoTaiLieuGioiHan / @Model.TaiLieu.SoTaiLieuKhongGioiHan</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card thong-ke-hop shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Tổng lượt xem/đọc</div>
+                    <div class="fs-4 fw-bold">@Model.TaiLieu.TongLuotXem</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card thong-ke-hop shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Tổng lượt mượn</div>
+                    <div class="fs-4 fw-bold">@Model.MuonTra.TongLuotMuon</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card thong-ke-hop shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Tổng lượt tải tài liệu số</div>
+                    <div class="fs-4 fw-bold">@Model.TaiLieu.TongLuotTai</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card thong-ke-hop shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Số lượt phạt</div>
+                    <div class="fs-4 fw-bold text-danger">@Model.MuonTra.DanhSachPhat.Count</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card thong-ke-hop shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Tổng tiền phạt</div>
+                    <div class="fs-4 fw-bold text-danger">@HienThi.Tien(Model.MuonTra.TongTienPhat)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h5 class="mt-4">Thống kê tài liệu theo lượt xem - mượn - trả</h5>
+    <div class="table-responsive">
+        <table class="table table-hover bg-white align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Mã</th>
+                    <th>Tên tài liệu</th>
+                    <th>Loại</th>
+                    <th class="text-end">Lượt xem</th>
+                    <th class="text-end">Lượt mượn</th>
+                    <th class="text-end">Lượt trả</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.DanhSachThongKeTaiLieu.Count == 0)
+                {
+                    <tr><td colspan="6" class="text-muted">Chưa có dữ liệu.</td></tr>
+                }
+                else
+                {
+                    @foreach (var t in Model.DanhSachThongKeTaiLieu)
+                    {
+                        <tr>
+                            <td>@t.MaTaiLieu</td>
+                            <td>@t.TenTaiLieu</td>
+                            <td>@t.LoaiTaiLieu</td>
+                            <td class="text-end">@t.LuotXem</td>
+                            <td class="text-end">@t.LuotMuon</td>
+                            <td class="text-end">@t.LuotTra</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (hienMuonTra)
+{
+    <h5 class="mt-4">II. Hoạt động mượn trả</h5>
+    @if (Model.KhongPhatSinhGiaoDich)
+    {
+        <div class="alert alert-warning">Không có giao dịch mượn/trả nào phát sinh trong khoảng thời gian đã chọn.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered bg-white">
+                <thead class="table-light">
+                    <tr>
+                        <th>Chờ duyệt</th>
+                        <th>Đang giữ</th>
+                        <th>Đang mượn</th>
+                        <th>Đã trả</th>
+                        <th>Quá hạn chưa trả</th>
+                        <th>Lượt trả trễ hạn</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>@Model.MuonTra.ChoDuyet</td>
+                        <td>@Model.MuonTra.DangGiu</td>
+                        <td>@Model.MuonTra.DangMuon</td>
+                        <td>@Model.MuonTra.DaTra</td>
+                        <td class="text-danger fw-semibold">@Model.MuonTra.QuaHan</td>
+                        <td class="text-danger fw-semibold">@Model.MuonTra.SoLuotQuaHanDaTra</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h6 class="mt-4">Danh sách mượn trả tài liệu</h6>
+        <div class="table-responsive">
+            <table class="table table-hover bg-white align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã phiếu</th>
+                        <th>Độc giả</th>
+                        <th>Tên sách</th>
+                        <th>Ngày mượn</th>
+                        <th>Hạn trả</th>
+                        <th>Ngày trả</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.MuonTra.ChiTietPhieuMuon.Count == 0)
+                    {
+                        <tr><td colspan="7" class="text-muted">Chưa có giao dịch.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var p in Model.MuonTra.ChiTietPhieuMuon)
+                        {
+                            <tr>
+                                <td>@p.MaPhieu</td>
+                                <td>@p.DocGia.NguoiDung.HoTen</td>
+                                <td>@p.Sach.TaiLieu.TenTaiLieu</td>
+                                <td>@p.NgayMuon.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@p.NgayPhaiTra.ToString("dd/MM/yyyy")</td>
+                                <td>@(p.NgayTraThucTe?.ToString("dd/MM/yyyy") ?? "-")</td>
+                                <td>@p.TrangThai</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <h6 class="mt-4">Sách được mượn nhiều nhất</h6>
+        <div class="table-responsive">
+            <table class="table table-hover bg-white">
+                <thead class="table-light">
+                    <tr><th>Tên sách</th><th>Số lượt mượn</th></tr>
+                </thead>
+                <tbody>
+                    @if (Model.MuonTra.SachMuonNhieuNhat.Count == 0)
+                    {
+                        <tr><td colspan="2" class="text-muted">Chưa có dữ liệu.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var s in Model.MuonTra.SachMuonNhieuNhat)
+                        {
+                            <tr><td>@s.TenSach</td><td>@s.SoLuotMuon</td></tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}
+
+@if (hienPhat)
+{
+    <h5 class="mt-4">III. Danh sách phạt tiền</h5>
+    <div class="row g-3 mb-3">
+        <div class="col-md-6 col-lg-3">
+            <div class="card thong-ke-hop shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Phạt trả sách trễ</div>
+                    <div class="fs-5 fw-bold text-danger">@HienThi.Tien(Model.MuonTra.TienPhatTraTre)</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card thong-ke-hop shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Phạt hư hỏng sách</div>
+                    <div class="fs-5 fw-bold text-danger">@HienThi.Tien(Model.MuonTra.TienPhatHuHong)</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card thong-ke-hop shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Tổng tiền phạt</div>
+                    <div class="fs-5 fw-bold text-danger">@HienThi.Tien(Model.MuonTra.TongTienPhat)</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card thong-ke-hop shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Số lượt phạt</div>
+                    <div class="fs-5 fw-bold">@Model.MuonTra.DanhSachPhat.Count</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h6>Chi tiết phạt theo phiếu</h6>
+    <div class="table-responsive">
+        <table class="table table-hover bg-white align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Mã phiếu</th>
+                    <th>Độc giả</th>
+                    <th>Tên sách</th>
+                    <th>Ngày trả</th>
+                    <th>Lý do phạt</th>
+                    <th class="text-end">Trả trễ</th>
+                    <th class="text-end">Hư hỏng</th>
+                    <th class="text-end">Tổng phạt</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.MuonTra.DanhSachPhat.Count == 0)
+                {
+                    <tr><td colspan="8" class="text-muted">Không có khoản phạt nào.</td></tr>
+                }
+                else
+                {
+                    @foreach (var p in Model.MuonTra.DanhSachPhat)
+                    {
+                        <tr>
+                            <td>@p.MaPhieu</td>
+                            <td>@p.TenDocGia</td>
+                            <td>@p.TenSach</td>
+                            <td>@(p.NgayTra?.ToString("dd/MM/yyyy") ?? "-")</td>
+                            <td>@p.LyDo</td>
+                            <td class="text-end">@HienThi.Tien(p.TienPhatTraTre)</td>
+                            <td class="text-end">@HienThi.Tien(p.TienPhatHuHong)</td>
+                            <td class="text-end fw-semibold text-danger">@HienThi.Tien(p.TongTien)</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <h6 class="mt-4">Thống kê lượt phạt theo tài khoản</h6>
+    <div class="table-responsive">
+        <table class="table table-hover bg-white align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Mã người dùng</th>
+                    <th>Độc giả</th>
+                    <th>Email</th>
+                    <th class="text-end">Lượt phạt</th>
+                    <th class="text-end">Trả trễ</th>
+                    <th class="text-end">Hư hỏng</th>
+                    <th class="text-end">Tổng tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.DanhSachPhatTheoTaiKhoan.Count == 0)
+                {
+                    <tr><td colspan="7" class="text-muted">Không có tài khoản nào bị phạt.</td></tr>
+                }
+                else
+                {
+                    @foreach (var t in Model.DanhSachPhatTheoTaiKhoan)
+                    {
+                        <tr>
+                            <td>@t.MaNguoiDung</td>
+                            <td>@t.TenDocGia</td>
+                            <td>@t.Email</td>
+                            <td class="text-end">@t.SoLuotPhat</td>
+                            <td class="text-end">@HienThi.Tien(t.TienPhatTraTre)</td>
+                            <td class="text-end">@HienThi.Tien(t.TienPhatHuHong)</td>
+                            <td class="text-end fw-semibold text-danger">@HienThi.Tien(t.TongTien)</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (hienTaiDoc)
+{
+    <h5 class="mt-4">IV. Danh sách lượt tải - đọc tài liệu</h5>
+    <div class="table-responsive">
+        <table class="table table-hover bg-white align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Thời điểm</th>
+                    <th>Người dùng</th>
+                    <th>Mã tài liệu</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.DanhSachTaiDoc.Count == 0)
+                {
+                    <tr><td colspan="4" class="text-muted">Chưa có lượt tải/đọc nào.</td></tr>
+                }
+                else
+                {
+                    @foreach (var t in Model.DanhSachTaiDoc)
+                    {
+                        <tr>
+                            <td>@t.ThoiDiem.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@(t.TenNguoiDung ?? t.MaNguoiDung ?? "Khách")</td>
+                            <td>@t.MaTaiLieu</td>
+                            <td>@t.HanhDong</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <h6 class="mt-4">Tài liệu được xem/đọc nhiều nhất</h6>
+    <div class="table-responsive">
+        <table class="table table-hover bg-white align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Mã tài liệu</th>
+                    <th>Tên tài liệu</th>
+                    <th>Loại</th>
+                    <th class="text-end">Lượt xem/đọc</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.TaiLieu.TaiLieuXemNhieuNhat.Count == 0)
+                {
+                    <tr><td colspan="4" class="text-muted">Chưa có dữ liệu.</td></tr>
+                }
+                else
+                {
+                    @foreach (var t in Model.TaiLieu.TaiLieuXemNhieuNhat)
+                    {
+                        <tr>
+                            <td>@t.MaTaiLieu</td>
+                            <td>@t.TenTaiLieu</td>
+                            <td>@t.LoaiTaiLieu</td>
+                            <td class="text-end">@t.SoLuotXem</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (hienTaiKhoan)
+{
+    <h5 class="mt-4">V. Truy cập và thay đổi tài khoản</h5>
+    <div class="row g-3 mb-3">
+        <div class="col-md-6 col-xl-3">
+            <div class="card thong-ke-hop shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Lượt đăng nhập</div>
+                    <div class="fs-4 fw-bold">@Model.TaiKhoan.TongLuotTruyCap</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card thong-ke-hop shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Tài khoản đã truy cập</div>
+                    <div class="fs-4 fw-bold">@Model.TaiKhoan.SoTaiKhoanTruyCap</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card thong-ke-hop shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Đổi / đặt lại mật khẩu</div>
+                    <div class="fs-4 fw-bold">@Model.TaiKhoan.SoLanDoiMatKhau</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card thong-ke-hop shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Cập nhật hồ sơ</div>
+                    <div class="fs-4 fw-bold">@Model.TaiKhoan.SoLanCapNhatHoSo</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover bg-white align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Thời điểm</th>
+                    <th>Người thực hiện</th>
+                    <th>Mã tài khoản tác động</th>
+                    <th>Hành động</th>
+                    <th>Mô tả</th>
+                    <th>Địa chỉ IP</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.TaiKhoan.DanhSach.Count == 0)
+                {
+                    <tr><td colspan="6" class="text-muted">Chưa có hoạt động tài khoản trong khoảng thời gian đã chọn.</td></tr>
+                }
+                else
+                {
+                    @foreach (var item in Model.TaiKhoan.DanhSach)
+                    {
+                        <tr>
+                            <td>@item.ThoiDiem.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@(item.TenNguoiThucHien ?? item.MaNguoiThucHien ?? "—")</td>
+                            <td>@(item.MaTaiKhoanTacDong ?? "—")</td>
+                            <td>@item.HanhDong</td>
+                            <td>@(item.MoTa ?? "—")</td>
+                            <td>@(item.DiaChiIp ?? "—")</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+        @if (Model.TaiKhoan.DanhSach.Count == 1000)
+        {
+            <p class="small text-secondary">Danh sách chi tiết giới hạn ở 1.000 hoạt động mới nhất; các chỉ số tổng hợp vẫn tính toàn bộ khoảng thời gian.</p>
+        }
+    </div>
+}

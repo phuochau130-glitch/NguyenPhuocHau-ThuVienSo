@@ -1,0 +1,85 @@
+@model TraCuuTaiLieuViewModel
+@{
+    ViewData["Title"] = "Sách vật lý";
+}
+
+<section class="mb-4">
+    <h1 class="h3 fw-bold mb-1">Sách vật lý</h1>
+    <p class="text-secondary small mb-3">Tra cứu và đăng ký mượn sách bản cứng tại thư viện.</p>
+    <form asp-controller="TaiLieu" asp-action="SachVatLi" method="get" class="search-toolbar">
+        <div class="row g-2 align-items-center">
+            <div class="col-12 col-lg">
+                <label class="visually-hidden" for="tuKhoaSach">Từ khóa</label>
+                <input id="tuKhoaSach" name="tuKhoa" value="@Model.TuKhoa" class="form-control"
+                       placeholder="Tên sách, tác giả, nhà xuất bản..." />
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <label class="visually-hidden" for="danhMucSach">Danh mục</label>
+                <select id="danhMucSach" name="danhMuc" class="form-select">
+                    <option value="">Tất cả danh mục</option>
+                    @foreach (var dm in Model.DanhSachDanhMuc)
+                    {
+                        <option value="@dm" selected="@(Model.DanhMuc == dm ? "selected" : null)">@dm</option>
+                    }
+                </select>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-auto">
+                <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
+            </div>
+            <div class="col-12">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="chiConKhaDung" name="chiConKhaDung" value="true"
+                           @(Model.ChiConKhaDung ? "checked" : "") />
+                    <label class="form-check-label small text-secondary" for="chiConKhaDung">Chỉ hiện sách còn khả dụng</label>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+
+@if (Model.KetQua.Count == 0)
+{
+    <div class="alert alert-warning">
+        Không tìm thấy sách phù hợp@(Model.DaTraCuu ? " với điều kiện tra cứu" : ""). Vui lòng thử từ khóa khác.
+    </div>
+}
+else
+{
+    <p class="text-muted">Tìm thấy <strong>@Model.KetQua.Count</strong> đầu sách.</p>
+    <div class="row g-3">
+        @foreach (var tl in Model.KetQua)
+        {
+            var conKhaDung = tl.BanSach!.SoLuongKhaDung > 0;
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card h-100 shadow-sm border-0 overflow-hidden">
+                    <div class="d-flex align-items-center justify-content-center text-white position-relative"
+                         style="background: linear-gradient(135deg, #0d4f8b, #1673c9); height: 150px;">
+                        @if (!string.IsNullOrWhiteSpace(tl.DuongDanAnhBia))
+                        {
+                            <img src="@tl.DuongDanAnhBia" alt="Bìa sách @tl.TenTaiLieu"
+                                 class="w-100 h-100" style="object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <i class="display-4 opacity-50">📚</i>
+                        }
+                        <span class="badge bg-light text-dark position-absolute top-0 start-0 m-2">SÁCH</span>
+                        @if (!conKhaDung)
+                        {
+                            <span class="badge bg-danger position-absolute top-0 end-0 m-2">Hết sách</span>
+                        }
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <div class="mb-1"><span class="badge bg-light text-secondary">@(tl.DanhMuc ?? "Chưa phân loại")</span></div>
+                        <h6 class="card-title fw-semibold mb-1 text-truncate" title="@tl.TenTaiLieu">@tl.TenTaiLieu</h6>
+                        <p class="card-text small text-muted mb-1">Tác giả: @(tl.TacGia ?? "—")</p>
+                        <p class="card-text small @(conKhaDung ? "text-success" : "text-danger") mb-2 fw-semibold">
+                            Còn @tl.BanSach.SoLuongKhaDung / @tl.BanSach.TongSoLuong bản
+                        </p>
+                        <a class="btn btn-sm btn-outline-primary mt-auto" asp-action="ChiTiet" asp-route-id="@tl.MaTaiLieu">Xem chi tiết</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

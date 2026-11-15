@@ -1,0 +1,262 @@
+@model ChiTietTaiLieuViewModel
+@{
+    ViewData["Title"] = "Chi tiết tài liệu";
+    var tl = Model.TaiLieu;
+    var vaiTro = User.VaiTro();
+    var laDocGia = vaiTro == VaiTro.SinhVien || vaiTro == VaiTro.GiangVien;
+    var laSach = tl.BanSach is not null;
+    var dinhDang = tl.BanSo?.DinhDang?.ToUpperInvariant() ?? (laSach ? "SÁCH VẬT LÝ" : "TÀI LIỆU");
+}
+
+<nav aria-label="breadcrumb" class="detail-breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a asp-action="Index">Kho tài liệu</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@tl.TenTaiLieu</li>
+    </ol>
+</nav>
+
+<div class="row g-4 align-items-start">
+    <aside class="col-md-4">
+        <section class="card detail-side-card">
+            <div class="detail-file-cover">
+                <span class="badge detail-cover-badge">@(tl.LaTaiLieuHanChe ? "GIỚI HẠN" : "KHÔNG GIỚI HẠN")</span>
+                @if (!string.IsNullOrWhiteSpace(tl.DuongDanAnhBia))
+                {
+                    <img src="@tl.DuongDanAnhBia" alt="Bìa tài liệu @tl.TenTaiLieu" class="detail-cover-image" />
+                }
+                else
+                {
+                    <svg viewBox="0 0 64 72" aria-hidden="true" class="detail-file-icon">
+                        <path d="M14 4h24l14 14v46H14z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round" />
+                        <path d="M38 4v15h14M22 34h22M22 43h22M22 52h9" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" />
+                    </svg>
+                }
+            </div>
+            <div class="p-3 p-md-4">
+                <h2 class="h4 text-center fw-bold mb-1">@tl.TenTaiLieu</h2>
+                <p class="text-center text-secondary small mb-3">Định dạng: @dinhDang</p>
+                <div class="detail-access-box">
+                    <div class="fw-semibold mb-2">Thông tin truy cập</div>
+                    @if (laSach)
+                    {
+                        <div class="small mb-2">
+                            <span class="text-success me-1">●</span>
+                            Còn @tl.BanSach!.SoLuongKhaDung / @tl.BanSach.TongSoLuong bản
+                        </div>
+                        <div class="small">
+                            <span class="text-primary me-1">⌖</span>
+                            Vị trí: @(tl.BanSach.ViTriKeSach ?? "Liên hệ thư viện")
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="small mb-2">
+                            <span class="@(Model.DaCoQuyenDoc ? "text-success" : "text-warning") me-1">●</span>
+                            Đọc trực tuyến: @(Model.DaCoQuyenDoc ? "Được phép" : "Cần xin quyền")
+                        </div>
+                        <div class="small">
+                            <span class="@(Model.DaCoQuyenDoc ? "text-success" : "text-warning") me-1">●</span>
+                            Tải tài liệu: @(Model.DaCoQuyenDoc ? "Được phép" : "Cần xin quyền")
+                        </div>
+                    }
+                </div>
+                @if (laSach)
+                {
+                    <a class="btn btn-outline-primary w-100 mt-3" asp-action="XemTruoc" asp-route-id="@tl.MaTaiLieu">Xem trước sách</a>
+                }
+            </div>
+        </section>
+    </aside>
+
+    <section class="col-md-8">
+        <article class="card detail-main-card">
+            <div class="card-body p-4 p-lg-5">
+                <span class="badge @(laSach ? "text-bg-success" : "text-bg-primary") mb-2">
+                    @(laSach ? "SÁCH VẬT LÝ" : "TÀI LIỆU SỐ")
+                </span>
+                <h1 class="h2 fw-bold mb-4">@tl.TenTaiLieu</h1>
+
+                <div class="detail-metadata-grid">
+                    <div class="detail-metadata-item">
+                        <span>Tác giả</span>
+                        <strong>@(tl.TacGia ?? "Chưa cập nhật")</strong>
+                    </div>
+                    <div class="detail-metadata-item">
+                        <span>Thể loại</span>
+                        <strong>@(tl.DanhMuc ?? "Chưa phân loại")</strong>
+                    </div>
+                    <div class="detail-metadata-item">
+                        <span>Nhà xuất bản</span>
+                        <strong>@(tl.NhaXuatBan ?? "Chưa cập nhật")</strong>
+                    </div>
+                    <div class="detail-metadata-item">
+                        <span>Năm xuất bản</span>
+                        <strong>@(tl.NamXuatBan?.ToString() ?? "Chưa cập nhật")</strong>
+                    </div>
+                    @if (laSach)
+                    {
+                        <div class="detail-metadata-item">
+                            <span>Vị trí kệ sách</span>
+                            <strong>@(tl.BanSach!.ViTriKeSach ?? "Liên hệ thư viện")</strong>
+                        </div>
+                        <div class="detail-metadata-item">
+                            <span>Số bản khả dụng</span>
+                            <strong>@tl.BanSach.SoLuongKhaDung / @tl.BanSach.TongSoLuong</strong>
+                        </div>
+                    }
+                    @if (tl.BanSo is not null)
+                    {
+                        <div class="detail-metadata-item">
+                            <span>Lượt tải</span>
+                            <strong>@tl.BanSo.SoLuotTai</strong>
+                        </div>
+                    }
+                </div>
+
+                <div class="detail-description">
+                    <h2 class="h5 fw-bold mb-3">Mô tả tài liệu</h2>
+                    <p class="text-secondary mb-0">
+                        @(string.IsNullOrWhiteSpace(tl.GhiChu) ? "Tài liệu chưa có phần mô tả." : tl.GhiChu)
+                    </p>
+                </div>
+
+                <div class="detail-actions">
+                    @if (laDocGia && Model.DaDangNhap)
+                    {
+                        <form asp-controller="TuSach" asp-action="Luu" method="post">
+                            <input type="hidden" name="maTaiLieu" value="@tl.MaTaiLieu" />
+                            <input type="hidden" name="returnUrl" value="@Url.Action("ChiTiet", "TaiLieu", new { id = tl.MaTaiLieu })" />
+                            <button type="submit" class="btn btn-outline-primary">Lưu vào tủ sách</button>
+                        </form>
+                    }
+                    @if (laSach)
+                    {
+                        @if (!Model.DaDangNhap)
+                        {
+                            <a class="btn btn-primary" asp-controller="Account" asp-action="DangNhap">Đăng nhập để mượn sách</a>
+                        }
+                        else if (!laDocGia)
+                        {
+                            <div class="alert alert-secondary mb-0">Chỉ tài khoản sinh viên hoặc giảng viên mới được đăng ký mượn sách.</div>
+                        }
+                        else
+                        {
+                            @if (!Model.CoTheThuVienHopLe)
+                            {
+                                <div class="alert alert-warning w-100 mb-2">
+                                    @if (Model.TrangThaiThe == TrangThaiThe.ChoDuyet)
+                                    {
+                                        <span>Thẻ đang chờ thủ thư duyệt nên chưa thể mượn sách.</span>
+                                    }
+                                    else if (Model.TrangThaiThe == TrangThaiThe.TuChoi)
+                                    {
+                                        <span>Hồ sơ thẻ bị từ chối. Bạn có thể gửi đăng ký lại hoặc liên hệ thủ thư.</span>
+                                        <a class="alert-link ms-1" asp-controller="TheThuVien" asp-action="DangKy">Đăng ký lại</a>
+                                    }
+                                    else if (Model.DaHetHanThe)
+                                    {
+                                        <span>Thẻ đã hết hạn. Vui lòng đăng ký lại để tiếp tục mượn sách.</span>
+                                        <a class="alert-link ms-1" asp-controller="TheThuVien" asp-action="DangKy">Đăng ký lại</a>
+                                    }
+                                    else if (Model.TrangThaiThe == TrangThaiThe.BiKhoa)
+                                    {
+                                        <span>Thẻ đang bị khóa. Vui lòng liên hệ thủ thư.</span>
+                                    }
+                                    else if (Model.TrangThaiThe is null)
+                                    {
+                                        <span>Bạn chưa đăng ký thẻ thư viện.</span>
+                                        <a class="alert-link ms-1" asp-controller="TheThuVien" asp-action="DangKy">Đăng ký thẻ</a>
+                                    }
+                                    else
+                                    {
+                                        <span>Thẻ chưa hoạt động hoặc không còn hiệu lực. Vui lòng kiểm tra trạng thái thẻ.</span>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(Model.GhiChuThe))
+                                    {
+                                        <div class="small mt-1">Ghi chú: @Model.GhiChuThe</div>
+                                    }
+                                    @if (Model.NgayHetHanThe.HasValue)
+                                    {
+                                        <div class="small mt-1">Ngày hết hạn: @Model.NgayHetHanThe.Value.ToString("dd/MM/yyyy")</div>
+                                    }
+                                </div>
+                            }
+                            @if (Model.DangBiKhoaMuon)
+                            {
+                                <div class="alert alert-danger w-100 mb-2">
+                                    Quyền đăng ký mượn đang bị khóa đến @Model.KhoaMuonDen?.ToString("dd/MM/yyyy HH:mm").
+                                </div>
+                            }
+
+                            @if (tl.BanSach!.SoLuongKhaDung > 0)
+                            {
+                                <form asp-controller="PhieuMuon" asp-action="DangKyMuon" method="post" class="w-100">
+                                    <input type="hidden" name="maSach" value="@tl.BanSach.MaSach" />
+                                    <div class="mb-2" style="max-width: 260px;">
+                                        <label class="form-label small mb-1" for="soNgayMuon">Thời hạn muốn mượn (ngày)</label>
+                                        <select id="soNgayMuon" name="soNgayMuon" class="form-select form-select-sm">
+                                            @for (var n = QuyDinh.SoNgayMuonToiThieu; n <= QuyDinh.SoNgayMuonToiDa; n++)
+                                            {
+                                                <option value="@n" selected="@(n == QuyDinh.SoNgayMuon)">@n ngày</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-success"
+                                            disabled="@(!Model.CoTheThuVienHopLe || Model.DangBiKhoaMuon)">
+                                        Đăng ký mượn sách
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <div class="alert alert-danger mb-0">Sách hiện không còn bản khả dụng.</div>
+                            }
+                        }
+                    }
+
+                    @if (tl.BanSo is not null)
+                    {
+                        @if (!Model.DaDangNhap)
+                        {
+                            <a class="btn btn-primary" asp-controller="Account" asp-action="DangNhap">Đăng nhập để đọc tài liệu</a>
+                        }
+                        else if (Model.DaCoQuyenDoc)
+                        {
+                            <a class="btn btn-primary" asp-action="Doc" asp-route-id="@tl.MaTaiLieu">Đọc trực tuyến</a>
+                            <a class="btn btn-outline-primary" asp-action="Tai" asp-route-id="@tl.MaTaiLieu">Tải xuống</a>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning w-100 mb-0">
+                                Tài liệu giới hạn quyền truy cập. Bạn cần gửi yêu cầu và chờ thủ thư phê duyệt.
+                            </div>
+                            @if (laDocGia)
+                            {
+                                <form asp-controller="YeuCau" asp-action="Gui" method="post" class="w-100">
+                                    <input type="hidden" name="maTaiLieuSo" value="@tl.BanSo.MaTaiLieuSo" />
+                                    <label class="form-label" for="lyDoTruyCap">Lý do cần truy cập</label>
+                                    <textarea id="lyDoTruyCap" name="lyDo" class="form-control mb-2" rows="2" maxlength="500"
+                                              placeholder="Ví dụ: phục vụ đề tài nghiên cứu khoa học"></textarea>
+                                    <button type="submit" class="btn btn-warning">Gửi yêu cầu xin quyền đọc</button>
+                                </form>
+                            }
+                        }
+                        @if (Model.YeuCauGanNhat is not null)
+                        {
+                            <p class="small text-secondary w-100 mb-0">
+                                Yêu cầu gần nhất:
+                                <span class="badge @HienThi.LopTrangThai(Model.YeuCauGanNhat.TrangThai)">@Model.YeuCauGanNhat.TrangThai</span>
+                                (@Model.YeuCauGanNhat.NgayYeuCau.ToString("dd/MM/yyyy HH:mm"))
+                            </p>
+                        }
+                    }
+                    @if (Model.DaDangNhap)
+                    {
+                        <a class="btn btn-outline-secondary" asp-controller="Account" asp-action="LichSuDoc">Lịch sử của tôi</a>
+                    }
+                </div>
+            </div>
+        </article>
+    </section>
+</div>

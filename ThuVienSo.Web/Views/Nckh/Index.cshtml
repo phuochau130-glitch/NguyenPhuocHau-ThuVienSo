@@ -1,0 +1,59 @@
+﻿@model List<TaiLieuDongGopViewModel>
+@{
+    ViewData["Title"] = "Đóng góp tài liệu NCKH";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Tài liệu nghiên cứu khoa học đã đóng góp</h3>
+    <a class="btn btn-primary" asp-action="TaiLen">Đóng góp tài liệu mới</a>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">
+        Bạn chưa đóng góp tài liệu nào. Bạn có thể tải lên các bài báo, báo cáo nghiên cứu khoa học để chia sẻ cho thư viện.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle bg-white">
+            <thead class="table-light">
+                <tr>
+                    <th>Mã</th>
+                    <th>Tên tài liệu</th>
+                    <th>Tác giả</th>
+                    <th>Danh mục</th>
+                    <th>Định dạng</th>
+                    <th>Trạng thái kiểm duyệt</th>
+                    <th>Lý do từ chối</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.TaiLieu.MaTaiLieu</td>
+                        <td>@item.TaiLieu.TenTaiLieu</td>
+                        <td>@(item.TaiLieu.TacGia ?? "—")</td>
+                        <td>@(item.TaiLieu.DanhMuc ?? "—")</td>
+                        <td>@(item.BanSo?.DinhDang ?? "—")</td>
+                        <td>
+                            <span class="badge @HienThi.LopTrangThai(item.TaiLieu.TrangThaiDuyet)">@item.TaiLieu.TrangThaiDuyet</span>
+                        </td>
+                        <td>
+                            @if (item.TaiLieu.TrangThaiDuyet == TrangThaiDuyetTaiLieu.TuChoi)
+                            {
+                                <span class="text-danger">@item.TaiLieu.GhiChu</span>
+                            }
+                            else
+                            {
+                                <span>—</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

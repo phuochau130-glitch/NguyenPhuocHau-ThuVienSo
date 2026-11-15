@@ -1,0 +1,96 @@
+﻿@model DangKyTheViewModel
+@{
+    var dangKyLai = ViewData["DangKyLai"] is true;
+    var trangThaiTheCu = ViewData["TrangThaiTheCu"] as string;
+    var ghiChuTheCu = ViewData["GhiChuTheCu"] as string;
+    ViewData["Title"] = dangKyLai ? "Đăng ký lại thẻ thư viện" : "Đăng ký thẻ thư viện";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="mb-3">@(dangKyLai ? "Đăng ký lại thẻ thư viện" : "Đăng ký thẻ thư viện")</h3>
+
+                @if (dangKyLai)
+                {
+                    <div class="alert alert-warning">
+                        @if (trangThaiTheCu == TrangThaiThe.TuChoi)
+                        {
+                            <span>Hồ sơ thẻ <strong>@ViewData["MaTheCu"]</strong> trước đó đã bị từ chối. Hãy kiểm tra thông tin và gửi lại để thủ thư xét duyệt.</span>
+                            @if (!string.IsNullOrWhiteSpace(ghiChuTheCu))
+                            {
+                                <div class="mt-1">Lý do: @ghiChuTheCu</div>
+                            }
+                        }
+                        else
+                        {
+                            <span>Thẻ <strong>@ViewData["MaTheCu"]</strong> đã hết hạn. Hãy kiểm tra thông tin bên dưới và gửi hồ sơ đăng ký lại.</span>
+                        }
+                    </div>
+                }
+
+                <div class="alert alert-info">
+                    Lệ phí cấp thẻ thư viện: <strong>@HienThi.Tien(QuyDinh.LePhiTheThuVien)</strong> / năm.
+                    Thẻ có hiệu lực <strong>1 năm</strong> kể từ ngày cấp (ngày gia hạn).
+                    Sau khi gửi hồ sơ, bạn sẽ được chuyển tới trang thanh toán lệ phí.
+                </div>
+
+                <form asp-action="DangKy" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="HoTen" class="form-label"></label>
+                            <input asp-for="HoTen" class="form-control" />
+                            <span asp-validation-for="HoTen" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="SoDienThoai" class="form-label"></label>
+                            <input asp-for="SoDienThoai" class="form-control" />
+                            <span asp-validation-for="SoDienThoai" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="MaSinhVienHoacCanBo" class="form-label"></label>
+                            <input asp-for="MaSinhVienHoacCanBo" class="form-control" />
+                            <span asp-validation-for="MaSinhVienHoacCanBo" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Khoa" class="form-label"></label>
+                            <input asp-for="Khoa" class="form-control" />
+                            <span asp-validation-for="Khoa" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input asp-for="CamKet" class="form-check-input" />
+                        <label asp-for="CamKet" class="form-check-label"></label>
+                        <span asp-validation-for="CamKet" class="text-danger d-block"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">@(dangKyLai ? "Gửi hồ sơ đăng ký lại và thanh toán" : "Đăng ký và thanh toán lệ phí")</button>
+                    <a class="btn btn-outline-secondary" asp-action="Index">Quay lại</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function ($) {
+            if ($.validator && $.validator.unobtrusive) {
+                $.validator.addMethod("phaichtichchon", function (value, element) {
+                    return element.checked === true;
+                });
+                $.validator.unobtrusive.adapters.addBool("phaichtichchon");
+            }
+        })(jQuery);
+    </script>
+}

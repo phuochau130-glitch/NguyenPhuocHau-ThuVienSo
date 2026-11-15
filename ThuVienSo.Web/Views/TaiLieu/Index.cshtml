@@ -1,0 +1,114 @@
+﻿@model TraCuuTaiLieuViewModel
+@{
+    ViewData["Title"] = "Tra cứu tài liệu";
+}
+
+<h3 class="mb-3">Tra cứu tài liệu</h3>
+
+<form asp-controller="TaiLieu" asp-action="Index" method="get" class="search-toolbar mb-4">
+    <div class="row g-2 align-items-center">
+        <div class="col-12 col-lg">
+            <label class="visually-hidden" for="tuKhoaKho">Từ khóa</label>
+            <input id="tuKhoaKho" name="tuKhoa" value="@Model.TuKhoa" class="form-control"
+                   placeholder="Tên tài liệu, tác giả, nhà xuất bản..." />
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+            <label class="visually-hidden" for="danhMucKho">Danh mục</label>
+            <select id="danhMucKho" name="danhMuc" class="form-select">
+                <option value="">Tất cả danh mục</option>
+                @foreach (var dm in Model.DanhSachDanhMuc)
+                {
+                    <option value="@dm" selected="@(Model.DanhMuc == dm ? "selected" : null)">@dm</option>
+                }
+            </select>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-2">
+            <label class="visually-hidden" for="loaiKho">Loại tài liệu</label>
+            <select id="loaiKho" name="loai" class="form-select">
+                <option value="">Tất cả loại</option>
+                <option value="sach" selected="@(Model.Loai == "sach" ? "selected" : null)">Sách vật lý</option>
+                <option value="so" selected="@(Model.Loai == "so" ? "selected" : null)">Tài liệu số</option>
+            </select>
+        </div>
+        <div class="col-12 col-lg-auto">
+            <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
+        </div>
+        <div class="col-12">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="chiConKhaDung" value="true" id="chiConKhaDung"
+                       @(Model.ChiConKhaDung ? "checked" : "") />
+                <label class="form-check-label small text-secondary" for="chiConKhaDung">Chỉ còn sách khả dụng</label>
+            </div>
+        </div>
+    </div>
+</form>
+
+@if (Model.KetQua.Count == 0)
+{
+    <div class="alert alert-warning">
+        Không tìm thấy tài liệu phù hợp@(Model.DaTraCuu ? " với điều kiện tra cứu" : ""). Vui lòng thử lại với từ khóa khác.
+    </div>
+}
+else
+{
+    <p class="text-muted">Tìm thấy <strong>@Model.KetQua.Count</strong> tài liệu.</p>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle bg-white">
+            <thead class="table-light">
+                <tr>
+                    <th>Mã</th>
+                    <th>Tên tài liệu</th>
+                    <th>Tác giả</th>
+                    <th>Danh mục</th>
+                    <th>Loại</th>
+                    <th>Tình trạng</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var tl in Model.KetQua)
+                {
+                    <tr>
+                        <td>@tl.MaTaiLieu</td>
+                        <td>
+                            @tl.TenTaiLieu
+                            @if (tl.LaTaiLieuHanChe)
+                            {
+                                <span class="badge bg-warning text-dark">Giới hạn</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Không giới hạn</span>
+                            }
+                        </td>
+                        <td>@(tl.TacGia ?? "—")</td>
+                        <td>@(tl.DanhMuc ?? "—")</td>
+                        <td>
+                            @if (tl.BanSach is not null)
+                            {
+                                <span class="badge bg-success">Sách vật lý</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Tài liệu số</span>
+                            }
+                        </td>
+                        <td>
+                            @if (tl.BanSach is not null)
+                            {
+                                <span>Còn @tl.BanSach.SoLuongKhaDung / @tl.BanSach.TongSoLuong bản</span>
+                            }
+                            else
+                            {
+                                <span>@tl.BanSo!.SoLuotTai lượt tải</span>
+                            }
+                        </td>
+                        <td>
+                            <a class="btn btn-sm btn-outline-primary" asp-action="ChiTiet" asp-route-id="@tl.MaTaiLieu">Chi tiết</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

@@ -1,0 +1,91 @@
+@{
+    var tenNguoiDung = User.TenHienThi();
+    var boDieuKhien = (string?)ViewContext.RouteData.Values["controller"] ?? string.Empty;
+    string Lop(string ten) => string.Equals(boDieuKhien, ten, StringComparison.OrdinalIgnoreCase)
+        ? "nav-link active" : "nav-link";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Khu vực Thủ thư</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        .navbar-thuvien { background-color: #0d4f8b; }
+        .navbar-thuvien .navbar-brand,
+        .navbar-thuvien .nav-link { color: #ffffff; }
+        .navbar-thuvien .nav-link:hover { color: #ffd966; }
+        .menu-thuthu { background-color: #123c63; min-height: calc(100vh - 56px); }
+        .menu-thuthu .nav-link { color: #d7e3f0; border-left: 3px solid transparent; border-radius: 0; }
+        .menu-thuthu .nav-link:hover { color: #ffffff; background-color: #1a5490; }
+        .menu-thuthu .nav-link.active { color: #ffffff; background-color: #1a5490; border-left-color: #ffd966; font-weight: 600; }
+        .menu-thuthu .menu-tieu-de { color: #8fb4d9; font-size: .75rem; text-transform: uppercase; letter-spacing: .05rem; }
+    </style>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-thuvien py-2">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">Thư viện số</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuChinh"
+                    aria-controls="menuChinh" aria-expanded="false" aria-label="Mở menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="menuChinh">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="TaiLieu" asp-action="Index">Tra cứu tài liệu</a></li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            @tenNguoiDung <span class="badge bg-light text-dark">Thủ thư</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="HoSo">Hồ sơ cá nhân</a></li>
+                            <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="DoiMatKhau">Đổi mật khẩu</a></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <form asp-area="" asp-controller="Account" asp-action="DangXuat" method="post" class="px-3">
+                                    <button type="submit" class="btn btn-sm btn-danger w-100">Đăng xuất</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <aside class="col-md-3 col-lg-2 menu-thuthu p-0">
+                <div class="p-3">
+                    <div class="menu-tieu-de mb-2">Nghiệp vụ thủ thư</div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="@Lop("Home")" asp-area="ThuThu" asp-controller="Home" asp-action="Index">Bảng điều khiển</a></li>
+                        <li class="nav-item"><a class="@Lop("TheThuVien")" asp-area="ThuThu" asp-controller="TheThuVien" asp-action="Index">Quản lý thẻ thư viện</a></li>
+                        <li class="nav-item"><a class="@Lop("MuonTra")" asp-area="ThuThu" asp-controller="MuonTra" asp-action="Index">Mượn / Trả sách</a></li>
+                        <li class="nav-item"><a class="@Lop("Sach")" asp-area="ThuThu" asp-controller="Sach" asp-action="Index">Quản lý sách vật lý</a></li>
+                        <li class="nav-item"><a class="@Lop("TaiLieuSo")" asp-area="ThuThu" asp-controller="TaiLieuSo" asp-action="Index">Quản lý tài liệu số</a></li>
+                        <li class="nav-item"><a class="@Lop("DanhMucTacGia")" asp-area="ThuThu" asp-controller="DanhMucTacGia" asp-action="Index">Danh mục và tác giả</a></li>
+                        <li class="nav-item"><a class="@Lop("YeuCau")" asp-area="ThuThu" asp-controller="YeuCau" asp-action="Index">Duyệt yêu cầu đọc</a></li>
+                        <li class="nav-item"><a class="@Lop("KiemDuyet")" asp-area="ThuThu" asp-controller="KiemDuyet" asp-action="Index">Kiểm duyệt tài liệu đóng góp</a></li>
+                        <li class="nav-item"><a class="@Lop("ThongKe")" asp-area="ThuThu" asp-controller="ThongKe" asp-action="Index">Thống kê - Báo cáo</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <main class="col-md-9 col-lg-10 py-4 px-4">
+                <partial name="_ThongBao" />
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

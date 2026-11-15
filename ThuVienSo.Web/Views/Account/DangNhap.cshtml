@@ -1,0 +1,57 @@
+﻿@model DangNhapViewModel
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="mb-3">Đăng nhập</h3>
+
+                <form asp-action="DangNhap" method="post">
+                    <input type="hidden" asp-for="ReturnUrl" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" placeholder="email@tdmu.edu.vn" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MatKhau" class="form-label"></label>
+                        <input asp-for="MatKhau" class="form-control" />
+                        <span asp-validation-for="MatKhau" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input asp-for="GhiNho" class="form-check-input" />
+                        <label asp-for="GhiNho" class="form-check-label"></label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+                </form>
+
+                <hr />
+                <p class="mb-0 text-center text-muted small">
+                    Tài khoản được cấp sẵn bởi thư viện. Vui lòng liên hệ thủ thư nếu chưa có tài khoản.
+                </p>
+            </div>
+        </div>
+
+        <div class="alert alert-info mt-3 small">
+            <strong>Tài khoản dữ liệu mẫu</strong> (mật khẩu: <code>123456</code>):
+            <ul class="mb-0 mt-1">
+                <li>Quản trị viên: <code>admin@tdmu.edu.vn</code></li>
+                <li>Thủ thư: <code>thuthu01@tdmu.edu.vn</code></li>
+                <li>Giảng viên: <code>gv_minh@tdmu.edu.vn</code></li>
+                <li>Sinh viên: <code>sv_hoang@tdmu.edu.vn</code></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

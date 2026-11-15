@@ -1,0 +1,28 @@
+@model DatLaiMatKhauViewModel
+@{
+    ViewData["Title"] = "Đặt lại mật khẩu";
+}
+
+<h3 class="mb-3">Đặt lại mật khẩu</h3>
+
+<div class="card shadow-sm" style="max-width: 520px;">
+    <div class="card-body">
+        <p>Tài khoản: <strong>@Model.HoTen</strong> (<code>@Model.MaNguoiDung</code>)</p>
+        <form asp-action="DatLaiMatKhau" method="post">
+            <input type="hidden" asp-for="MaNguoiDung" />
+            <input type="hidden" asp-for="HoTen" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+            <div class="mb-3">
+                <label asp-for="MatKhauMoi" class="form-label"></label>
+                <input asp-for="MatKhauMoi" class="form-control" />
+                <span asp-validation-for="MatKhauMoi" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">Đặt lại mật khẩu</button>
+            <a class="btn btn-outline-secondary" asp-action="Index">Quay lại</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

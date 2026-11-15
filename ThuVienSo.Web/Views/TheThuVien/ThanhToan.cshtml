@@ -1,0 +1,55 @@
+@model TheThuVien
+@{
+    ViewData["Title"] = "Thanh toán lệ phí thẻ thư viện";
+    var lePhi = Model.LePhi > 0 ? Model.LePhi : QuyDinh.LePhiTheThuVien;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="mb-3">Thanh toán lệ phí thẻ thư viện</h3>
+
+                @if (Model.DaThanhToan)
+                {
+                    <div class="alert alert-success">
+                        Bạn đã thanh toán lệ phí cho thẻ <strong>@Model.MaThe</strong>.
+                        Hồ sơ đang chờ thủ thư duyệt và kiểm tra.
+                    </div>
+                    <a class="btn btn-primary" asp-action="Index">Về trang thẻ thư viện</a>
+                }
+                else
+                {
+                    <p class="text-muted">Vui lòng kiểm tra thông tin và xác nhận thanh toán lệ phí cấp thẻ.</p>
+
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Mã thẻ</dt>
+                        <dd class="col-sm-7">@Model.MaThe</dd>
+
+                        <dt class="col-sm-5">Độc giả</dt>
+                        <dd class="col-sm-7">@Model.DocGia.NguoiDung.HoTen</dd>
+
+                        <dt class="col-sm-5">Ngày cấp (ngày gia hạn)</dt>
+                        <dd class="col-sm-7">@HienThi.Ngay(Model.NgayGiaHan)</dd>
+
+                        <dt class="col-sm-5">Ngày hết hạn</dt>
+                        <dd class="col-sm-7">@HienThi.Ngay(Model.NgayHetHan)</dd>
+
+                        <dt class="col-sm-5">Lệ phí phải trả</dt>
+                        <dd class="col-sm-7 fw-bold text-danger fs-5">@HienThi.Tien(lePhi) / năm</dd>
+                    </dl>
+
+                    <hr />
+
+                    <form asp-action="XacNhanThanhToan" method="post" class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success">Xác nhận thanh toán</button>
+                        <a class="btn btn-outline-secondary" asp-action="Index">Thanh toán sau</a>
+                    </form>
+                    <p class="small text-muted mt-3 mb-0">
+                        Sau khi thanh toán thành công, hồ sơ thẻ sẽ được gửi tới thủ thư để duyệt và kiểm tra.
+                    </p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

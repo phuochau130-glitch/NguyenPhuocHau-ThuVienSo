@@ -1,0 +1,71 @@
+@model NhatKyDanhSachViewModel
+@{
+    ViewData["Title"] = "Nhật ký hoạt động";
+}
+
+<h3 class="mb-1">Nhật ký hoạt động</h3>
+<p class="text-muted">Theo dõi các hoạt động đăng nhập, xem/tải tài liệu, mượn trả và quản trị hệ thống.</p>
+
+<form method="get" class="card shadow-sm mb-4">
+    <div class="card-body row g-2">
+        <div class="col-md-3">
+            <input name="tuKhoa" value="@Model.TuKhoa" class="form-control" placeholder="Mã, họ tên, tài liệu hoặc mô tả..." />
+        </div>
+        <div class="col-md-3">
+            <select name="hanhDong" class="form-select">
+                <option value="">-- Tất cả hành động --</option>
+                @foreach (var hd in Model.DanhSachHanhDong)
+                {
+                    <option value="@hd" selected="@(Model.HanhDong == hd)">@hd</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <input type="date" name="tuNgay" value="@(Model.TuNgay?.ToString("yyyy-MM-dd"))" class="form-control" />
+        </div>
+        <div class="col-md-2">
+            <input type="date" name="denNgay" value="@(Model.DenNgay?.ToString("yyyy-MM-dd"))" class="form-control" />
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Lọc</button>
+        </div>
+    </div>
+</form>
+
+@if (Model.DanhSach.Count == 0)
+{
+    <div class="alert alert-warning">Không có bản ghi nhật ký nào phù hợp.</div>
+}
+else
+{
+    <p class="text-muted">Hiển thị <strong>@Model.DanhSach.Count</strong> bản ghi gần nhất.</p>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle bg-white">
+            <thead class="table-light">
+                <tr>
+                    <th>Thời điểm</th>
+                    <th>Mã người dùng</th>
+                    <th>Người dùng</th>
+                    <th>Hành động</th>
+                    <th>Đối tượng</th>
+                    <th>Mô tả</th>
+                    <th>Địa chỉ IP</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var k in Model.DanhSach)
+                {
+                    <tr>
+                        <td>@k.ThoiDiem.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                        <td class="fw-semibold">@(k.MaNguoiDung ?? "—")</td>
+                        <td>@(string.IsNullOrWhiteSpace(k.HoTen) ? "—" : k.HoTen)</td>
+                        <td><span class="badge bg-secondary">@k.HanhDong</span></td>
+                        <td>@(string.IsNullOrWhiteSpace(k.DoiTuong) ? "—" : k.DoiTuong)</td>
+                        <td>@(string.IsNullOrWhiteSpace(k.MoTa) ? "—" : k.MoTa)</td>
+                        <td>@(string.IsNullOrWhiteSpace(k.DiaChiIp) ? "—" : k.DiaChiIp)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

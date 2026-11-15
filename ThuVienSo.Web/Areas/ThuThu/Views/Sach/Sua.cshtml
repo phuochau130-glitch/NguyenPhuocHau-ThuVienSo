@@ -1,0 +1,22 @@
+@model SachVatLiFormViewModel
+@{
+    ViewData["Title"] = "Sửa sách vật lý";
+}
+
+<h3 class="mb-3">Sửa sách vật lý <span class="text-muted">(@Model.MaSach)</span></h3>
+
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <form asp-action="Sua" method="post" enctype="multipart/form-data">
+            <partial name="_FormSach" model="Model" />
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                <a class="btn btn-outline-secondary" asp-action="Index">Quay lại</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

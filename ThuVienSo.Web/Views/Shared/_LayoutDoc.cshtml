@@ -1,0 +1,195 @@
+﻿@{
+    var daDangNhap = User.Identity?.IsAuthenticated == true;
+    var tenHienThi = User.TenHienThi();
+}
+@{
+    var vaiTro = User.VaiTro();
+    var laDocGia = vaiTro == VaiTro.SinhVien || vaiTro == VaiTro.GiangVien;
+    var controllerHienTai = ViewContext.RouteData.Values["controller"]?.ToString();
+    var actionHienTai = ViewContext.RouteData.Values["action"]?.ToString();
+    var areaHienTai = ViewContext.RouteData.Values["area"]?.ToString();
+
+    bool DangActive(string controller, string? action = null) =>
+        string.IsNullOrEmpty(areaHienTai)
+        && string.Equals(controllerHienTai, controller, StringComparison.OrdinalIgnoreCase)
+        && (action is null || string.Equals(actionHienTai, action, StringComparison.OrdinalIgnoreCase));
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Thư viện số</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        :root { --tv-primary: #0d4f8b; --tv-primary-dark: #0d4f8b; --tv-primary-light: #1673c9; }
+        body { background-color: #f4f6fb; }
+        .header-doc .container,
+        .navbar-thuvien .container,
+        body > .container,
+        footer .container {
+            width: 95%;
+            max-width: 1680px;
+            padding-right: 0;
+            padding-left: 0;
+        }
+        .header-doc {
+            min-height: 82px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e6e8ef;
+            box-shadow: 0 1px 4px rgba(0,0,0,.04);
+            padding: .7rem 0;
+        }
+        .header-doc .brand {
+            display: flex; align-items: center; gap: .6rem;
+            font-weight: 700; color: var(--tv-primary); font-size: 1.55rem; text-decoration: none;
+        }
+        .header-doc .brand small { display: block; font-size: .62rem; color: #8a94a6; font-weight: 500; letter-spacing: .08rem; }
+        .header-doc .nav-link { color: #334155; font-weight: 500; padding: .5rem .9rem; border-radius: .5rem; }
+        .header-doc .nav-link:hover { color: var(--tv-primary); background-color: #eaf2fb; }
+        .btn-quanly {
+            background: linear-gradient(90deg, var(--tv-primary), var(--tv-primary-dark));
+            color: #fff; border: none; border-radius: .6rem; padding: .45rem 1.1rem; font-weight: 600;
+        }
+        .btn-quanly:hover { color: #fff; opacity: .92; }
+        .navbar-thuvien {
+            background-color: #fff;
+            border-bottom: 1px solid #e6e8ef;
+            box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        }
+        .navbar-thuvien .navbar-brand { font-weight: 700; color: var(--tv-primary); font-size: 1.3rem; }
+        .navbar-thuvien .navbar-brand small { display: block; font-size: .65rem; color: #8a94a6; font-weight: 500; letter-spacing: .08rem; }
+        .navbar-thuvien .nav-link { color: #334155; font-weight: 500; padding: .5rem .9rem; border-radius: .5rem; }
+        .navbar-thuvien .nav-link:hover,
+        .navbar-thuvien .nav-link.active { color: var(--tv-primary); background-color: #eaf2fb; }
+        .btn-dangnhap {
+            background: linear-gradient(90deg, var(--tv-primary), var(--tv-primary-light));
+            color: #fff; border: none; border-radius: .6rem; padding: .45rem 1.2rem; font-weight: 600;
+        }
+        .btn-dangnhap:hover { color: #fff; opacity: .92; }
+        .dropdown-account .dropdown-toggle { color: var(--tv-primary); font-weight: 600; }
+        .dropdown-account .dropdown-toggle::after { vertical-align: middle; }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-thuvien sticky-top py-2">
+            <div class="container">
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                THƯ VIỆN SỐ
+                <small>DIGITAL LIBRARY PLATFORM</small>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuChinhDoc"
+                    aria-controls="menuChinhDoc" aria-expanded="false" aria-label="Mở menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="menuChinhDoc">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link @(DangActive("Home", "Index") ? "active" : "")"
+                           asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(DangActive("Home", "GioiThieu") ? "active" : "")"
+                           asp-area="" asp-controller="Home" asp-action="GioiThieu">Giới thiệu</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(DangActive("TaiLieu", "TaiLieuSo") ? "active" : "")"
+                           asp-area="" asp-controller="TaiLieu" asp-action="TaiLieuSo">Tài liệu số</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(DangActive("TaiLieu", "SachVatLi") ? "active" : "")"
+                           asp-area="" asp-controller="TaiLieu" asp-action="SachVatLi">Sách vật lý</a>
+                    </li>
+                    @if (laDocGia || !daDangNhap)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @(DangActive("TheThuVien") ? "active" : "")"
+                               asp-area="" asp-controller="TheThuVien" asp-action="DangKy">Đăng ký thẻ thư viện</a>
+                        </li>
+                    }
+                    @if (vaiTro == VaiTro.ThuThu)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="ThuThu" asp-controller="Home" asp-action="Index">Khu vực thủ thư</a>
+                        </li>
+                    }
+                    @if (vaiTro == VaiTro.Admin)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Admin" asp-controller="Home" asp-action="Index">Khu vực quản trị</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <ul class="navbar-nav">
+                @if (daDangNhap)
+                {
+                    <li class="nav-item dropdown dropdown-account">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 16 16" fill="currentColor"
+                                 class="me-1" style="vertical-align: -3px;" aria-hidden="true">
+                                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
+                                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
+                            </svg>
+                            @User.TenHienThi()
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                            <li class="px-3 py-2">
+                                <div class="fw-semibold text-dark">@User.TenHienThi()</div>
+                                <small class="text-muted">@VaiTro.TenHienThi(vaiTro)</small>
+                            </li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="HoSo">👤 Thông tin cá nhân</a></li>
+                            @if (laDocGia)
+                            {
+                                <li><a class="dropdown-item" asp-area="" asp-controller="TuSach" asp-action="Index">📚 Tủ sách cá nhân</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="LichSuDoc">📖 Lịch sử đọc</a></li>
+                            }
+                            <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="DoiMatKhau">🔒 Đổi mật khẩu</a></li>
+                            @if (laDocGia)
+                            {
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Nckh" asp-action="Index">🗂️ Lịch sử đóng góp tài liệu</a></li>
+                            }
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <form asp-area="" asp-controller="Account" asp-action="DangXuat" method="post" class="px-3">
+                                    <button type="submit" class="btn btn-sm btn-danger w-100">Đăng xuất</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="btn btn-dangnhap" asp-area="" asp-controller="Account" asp-action="DangNhap">Đăng nhập</a>
+                    </li>
+                }
+            </ul>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container flex-grow-1 py-3">
+        <partial name="_ThongBao" />
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted py-3 bg-white mt-4">
+        <div class="container text-center">
+            <small class="text-muted">&copy; @DateTime.Now.Year - Hệ thống Quản lý Thư viện số - Trường Đại học Thủ Dầu Một</small>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

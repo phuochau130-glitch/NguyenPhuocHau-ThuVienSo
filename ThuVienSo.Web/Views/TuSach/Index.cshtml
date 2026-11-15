@@ -1,0 +1,56 @@
+@model List<TaiLieuTuSach>
+@{
+    ViewData["Title"] = "Tủ sách cá nhân";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h1 class="h3 mb-1">Tủ sách cá nhân</h1>
+        <p class="text-secondary mb-0">Các tài liệu bạn đã lưu để xem lại sau.</p>
+    </div>
+    <a class="btn btn-outline-primary" asp-controller="TaiLieu" asp-action="Index">Khám phá tài liệu</a>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">
+        Tủ sách của bạn đang trống. Mở trang chi tiết của tài liệu và chọn “Lưu vào tủ sách” để thêm tài liệu.
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var muc in Model)
+        {
+            var tl = muc.TaiLieu;
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card h-100 shadow-sm border-0 overflow-hidden">
+                    <div class="d-flex align-items-center justify-content-center bg-light" style="height: 180px;">
+                        @if (!string.IsNullOrWhiteSpace(tl.DuongDanAnhBia))
+                        {
+                            <img src="@tl.DuongDanAnhBia" alt="Bìa @tl.TenTaiLieu"
+                                 class="w-100 h-100" style="object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <span class="display-4 text-secondary">@(tl.BanSach is not null ? "📚" : "📄")</span>
+                        }
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <span class="small text-secondary mb-1">@tl.LoaiTaiLieu · Lưu ngày @muc.NgayLuu.ToString("dd/MM/yyyy")</span>
+                        <h2 class="h6 fw-semibold">@tl.TenTaiLieu</h2>
+                        <p class="small text-muted">@(tl.TacGia ?? "Chưa cập nhật tác giả")</p>
+                        <div class="d-flex gap-2 mt-auto">
+                            <a class="btn btn-sm btn-primary flex-grow-1" asp-controller="TaiLieu" asp-action="ChiTiet"
+                               asp-route-id="@tl.MaTaiLieu">Mở tài liệu</a>
+                            <form asp-action="BoLuu" method="post">
+                                <input type="hidden" name="maTaiLieu" value="@tl.MaTaiLieu" />
+                                <button class="btn btn-sm btn-outline-danger" type="submit" title="Bỏ khỏi tủ sách">Bỏ lưu</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

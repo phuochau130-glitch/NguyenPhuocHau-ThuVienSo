@@ -1,0 +1,75 @@
+@model ThemNguoiDungViewModel
+@{
+    ViewData["Title"] = "Thêm tài khoản";
+    var danhSachVaiTro = new[] { VaiTro.SinhVien, VaiTro.GiangVien, VaiTro.ThuThu, VaiTro.Admin };
+}
+
+<h3 class="mb-3">Thêm tài khoản mới</h3>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form asp-action="Them" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="HoTen" class="form-label"></label>
+                    <input asp-for="HoTen" class="form-control" />
+                    <span asp-validation-for="HoTen" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="SoDienThoai" class="form-label"></label>
+                    <input asp-for="SoDienThoai" class="form-control" />
+                    <span asp-validation-for="SoDienThoai" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="VaiTro" class="form-label"></label>
+                    <select asp-for="VaiTro" class="form-select">
+                        @foreach (var vt in danhSachVaiTro)
+                        {
+                            <option value="@vt">@VaiTro.TenHienThi(vt)</option>
+                        }
+                    </select>
+                    <span asp-validation-for="VaiTro" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="MaSinhVienHoacCanBo" class="form-label"></label>
+                    <input asp-for="MaSinhVienHoacCanBo" class="form-control" placeholder="Dành cho sinh viên / giảng viên" />
+                    <span asp-validation-for="MaSinhVienHoacCanBo" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Khoa" class="form-label"></label>
+                    <input asp-for="Khoa" class="form-control" />
+                    <span asp-validation-for="Khoa" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="MaNhanVien" class="form-label"></label>
+                    <input asp-for="MaNhanVien" class="form-control" placeholder="Dành cho thủ thư" />
+                    <span asp-validation-for="MaNhanVien" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="BoPhan" class="form-label"></label>
+                    <input asp-for="BoPhan" class="form-control" />
+                    <span asp-validation-for="BoPhan" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="MatKhau" class="form-label"></label>
+                    <input asp-for="MatKhau" class="form-control" />
+                    <span asp-validation-for="MatKhau" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">Tạo tài khoản</button>
+                <a class="btn btn-outline-secondary" asp-action="Index">Quay lại</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

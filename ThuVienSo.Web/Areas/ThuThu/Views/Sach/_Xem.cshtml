@@ -1,0 +1,156 @@
+@model TaiLieu
+@{
+    var sach = Model.BanSach;
+    var dinhDangXem = sach?.DinhDangTepXemTruoc?.ToUpperInvariant() ?? string.Empty;
+    var laWord = dinhDangXem is "DOC" or "DOCX";
+    var coTepXem = !string.IsNullOrWhiteSpace(sach?.DuongDanTepXemTruoc);
+    var urlXemTep = Url.Action("XemTep", "Sach", new { area = "ThuThu", id = Model.MaTaiLieu });
+}
+
+<div class="row g-3">
+    <div class="col-md-4">
+        @if (!string.IsNullOrWhiteSpace(Model.DuongDanAnhBia))
+        {
+            <img src="@Model.DuongDanAnhBia" alt="Bìa sách @Model.TenTaiLieu" class="img-fluid rounded border w-100" />
+        }
+        else
+        {
+            <div class="border rounded bg-light d-flex align-items-center justify-content-center text-muted"
+                 style="height: 220px;">
+                <span>Chưa có ảnh bìa</span>
+            </div>
+        }
+    </div>
+
+    <div class="col-md-8">
+        <h5 class="fw-bold mb-2">@Model.TenTaiLieu</h5>
+        <p class="mb-3">
+            <span class="badge bg-success">Sách vật lý</span>
+            <span class="badge @HienThi.LopTrangThai(Model.TrangThaiDuyet)">@Model.TrangThaiDuyet</span>
+        </p>
+
+        <dl class="row mb-0 small">
+            <dt class="col-sm-4">Mã sách</dt>
+            <dd class="col-sm-8">@Model.MaTaiLieu</dd>
+
+            <dt class="col-sm-4">Tác giả</dt>
+            <dd class="col-sm-8">@(Model.TacGia ?? "—")</dd>
+
+            <dt class="col-sm-4">Nhà xuất bản</dt>
+            <dd class="col-sm-8">@(Model.NhaXuatBan ?? "—")</dd>
+
+            <dt class="col-sm-4">Năm xuất bản</dt>
+            <dd class="col-sm-8">@(Model.NamXuatBan?.ToString() ?? "—")</dd>
+
+            <dt class="col-sm-4">Danh mục</dt>
+            <dd class="col-sm-8">@(Model.DanhMuc ?? "—")</dd>
+
+            <dt class="col-sm-4">Vị trí kệ sách</dt>
+            <dd class="col-sm-8">@(sach?.ViTriKeSach ?? "—")</dd>
+
+            <dt class="col-sm-4">ISBN</dt>
+            <dd class="col-sm-8">@(sach?.Isbn ?? "—")</dd>
+
+            <dt class="col-sm-4">Số lượng</dt>
+            <dd class="col-sm-8">
+                <span class="badge @((sach?.SoLuongKhaDung ?? 0) > 0 ? "bg-success" : "bg-danger")">
+                    @(sach?.SoLuongKhaDung ?? 0) / @(sach?.TongSoLuong ?? 0) bản khả dụng
+                </span>
+            </dd>
+
+            <dt class="col-sm-4">Tệp đọc thử</dt>
+            <dd class="col-sm-8">
+                @if (!string.IsNullOrWhiteSpace(sach?.DuongDanTepXemTruoc))
+                {
+                    <span class="text-success">@(sach.DinhDangTepXemTruoc ?? "Có tệp")</span>
+                }
+                else
+                {
+                    <span class="text-muted">Chưa có tệp đọc thử</span>
+                }
+            </dd>
+
+            <dt class="col-sm-4">Lượt xem</dt>
+            <dd class="col-sm-8">@Model.SoLuotXem</dd>
+        </dl>
+
+        @if (!string.IsNullOrWhiteSpace(Model.GhiChu))
+        {
+            <hr />
+            <p class="mb-0 small"><strong>Ghi chú:</strong> @Model.GhiChu</p>
+        }
+    </div>
+</div>
+
+<hr />
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h6 class="fw-semibold mb-0">Xem trước nội dung</h6>
+    @if (coTepXem)
+    {
+        <a class="btn btn-sm btn-outline-primary" href="@urlXemTep" target="_blank" rel="noopener">Mở tệp trong tab mới</a>
+    }
+</div>
+
+@if (!coTepXem)
+{
+    <div class="alert alert-secondary mb-0 small">Sách này chưa có tệp đọc thử.</div>
+}
+else if (laWord)
+{
+    <div data-docx-src="@urlXemTep" class="border rounded p-3" style="max-height:60vh;overflow:auto"></div>
+}
+else if (dinhDangXem == "PDF")
+{
+    <iframe src="@urlXemTep" title="Đọc thử @Model.TenTaiLieu"
+            style="width:100%;height:60vh;min-height:420px;border:1px solid #dee2e6;border-radius:.375rem"></iframe>
+}
+else
+{
+    <div class="alert alert-secondary mb-0 small">
+        Trình duyệt không xem trước trực tiếp được định dạng @dinhDangXem.
+        <a href="@urlXemTep" target="_blank" rel="noopener">Mở tệp đọc thử</a>
+    </div>
+}
+
+@{
+    var danhSachPhieu = sach?.DanhSachPhieuMuon?.OrderByDescending(p => p.NgayMuon).Take(10).ToList()
+        ?? new List<PhieuMuon>();
+}
+@if (danhSachPhieu.Count > 0)
+{
+    <hr />
+    <h6 class="fw-semibold mb-2">Phiếu mượn gần đây</h6>
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Mã phiếu</th>
+                    <th>Độc giả</th>
+                    <th>Ngày mượn</th>
+                    <th>Hạn trả</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in danhSachPhieu)
+                {
+                    <tr>
+                        <td>@p.MaPhieu</td>
+                        <td>@(p.DocGia?.NguoiDung.HoTen ?? "—")</td>
+                        <td>@HienThi.NgayGio(p.NgayMuon)</td>
+                        <td>@HienThi.Ngay(p.NgayPhaiTra)</td>
+                        <td>
+                            <span class="badge @HienThi.LopTrangThai(p.TrangThai)">@p.TrangThai</span>
+                            @if (p.TrangThai == TrangThaiPhieuMuon.ChuaNhan)
+                            {
+                                <small class="text-danger d-block">Độc giả không đến nhận trong thời gian giữ sách</small>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+

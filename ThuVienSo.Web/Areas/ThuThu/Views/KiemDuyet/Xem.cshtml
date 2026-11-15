@@ -1,0 +1,88 @@
+@model TaiLieu
+@{
+    ViewData["Title"] = "Xem tài liệu kiểm duyệt";
+    var dinhDang = Model.BanSo?.DinhDang?.ToUpperInvariant() ?? string.Empty;
+    var laWord = dinhDang is "DOC" or "DOCX";
+    var urlTep = Url.Action("XemTep", "KiemDuyet", new { area = "ThuThu", id = Model.MaTaiLieu });
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h1 class="h3 mb-1">@Model.TenTaiLieu</h1>
+        <span class="badge @HienThi.LopTrangThai(Model.TrangThaiDuyet)">@Model.TrangThaiDuyet</span>
+        <span class="text-secondary small ms-2">Định dạng: @dinhDang</span>
+    </div>
+    <a class="btn btn-outline-secondary" asp-action="Index">Quay lại kiểm duyệt</a>
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-4"><strong>Tác giả:</strong> @(Model.TacGia ?? "—")</div>
+            <div class="col-md-4"><strong>Danh mục:</strong> @(Model.DanhMuc ?? "—")</div>
+            <div class="col-md-4"><strong>Người đóng góp:</strong> @(Model.NguoiDang?.NguoiDung.HoTen ?? "—")</div>
+            <div class="col-12"><strong>Tóm tắt:</strong> @(Model.GhiChu ?? "Chưa có tóm tắt.")</div>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-info">
+    Bản xem toàn văn này chỉ dành cho thủ thư trong quy trình kiểm duyệt; người dùng chưa được truy cập tài liệu chờ duyệt.
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white fw-semibold">Nội dung tài liệu</div>
+    <div class="card-body p-0">
+        @if (laWord)
+        {
+            <div id="docxLoading" class="text-center py-4">
+                <div class="spinner-border spinner-border-sm" role="status"></div>
+                <div class="mt-2">Đang tải nội dung Word...</div>
+            </div>
+            <div id="docxContainer" class="p-3"></div>
+        }
+        else if (dinhDang == "PDF")
+        {
+            <iframe src="@urlTep" title="Toàn văn tài liệu"
+                    style="width:100%;height:78vh;min-height:520px;border:0"></iframe>
+        }
+        else
+        {
+            <div class="p-4">
+                <p>Trình duyệt không xem trực tiếp được định dạng @dinhDang.</p>
+                <a class="btn btn-primary" href="@urlTep" target="_blank" rel="noopener">Mở tệp để kiểm tra</a>
+            </div>
+        }
+    </div>
+</div>
+
+@if (laWord)
+{
+    @section Scripts {
+        <script src="~/lib/docx-preview/jszip.min.js"></script>
+        <script src="~/lib/docx-preview/docx-preview.min.js"></script>
+        <script>
+            (function () {
+                var container = document.getElementById('docxContainer');
+                var loading = document.getElementById('docxLoading');
+                if (!container || typeof docx === 'undefined') return;
+                fetch('@urlTep')
+                    .then(function (response) {
+                        if (!response.ok) throw new Error('Không tải được tệp Word.');
+                        return response.blob();
+                    })
+                    .then(function (blob) {
+                        return docx.renderAsync(blob, container, null, {
+                            inWrapper: true,
+                            breakPages: true,
+                            experimental: true
+                        });
+                    })
+                    .then(function () { if (loading) loading.style.display = 'none'; })
+                    .catch(function () {
+                        if (loading) loading.innerHTML = '<div class="alert alert-danger">Không hiển thị được tệp Word.</div>';
+                    });
+            })();
+        </script>
+    }
+}

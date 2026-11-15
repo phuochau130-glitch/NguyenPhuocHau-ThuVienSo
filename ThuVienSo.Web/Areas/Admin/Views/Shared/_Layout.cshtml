@@ -1,0 +1,86 @@
+@{
+    var tenNguoiDung = User.TenHienThi();
+    var boDieuKhien = (string?)ViewContext.RouteData.Values["controller"] ?? string.Empty;
+    string Lop(string ten) => string.Equals(boDieuKhien, ten, StringComparison.OrdinalIgnoreCase)
+        ? "nav-link active" : "nav-link";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Khu vực Quản trị</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        .navbar-admin { background-color: #4a1d1d; }
+        .navbar-admin .navbar-brand,
+        .navbar-admin .nav-link { color: #ffffff; }
+        .navbar-admin .nav-link:hover { color: #ffb3b3; }
+        .menu-admin { background-color: #2b1111; min-height: calc(100vh - 56px); }
+        .menu-admin .nav-link { color: #e3cfcf; border-left: 3px solid transparent; border-radius: 0; }
+        .menu-admin .nav-link:hover { color: #ffffff; background-color: #5a2626; }
+        .menu-admin .nav-link.active { color: #ffffff; background-color: #5a2626; border-left-color: #ffb3b3; font-weight: 600; }
+        .menu-admin .menu-tieu-de { color: #d99a9a; font-size: .75rem; text-transform: uppercase; letter-spacing: .05rem; }
+    </style>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-admin py-2">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">Thư viện số</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuChinh"
+                    aria-controls="menuChinh" aria-expanded="false" aria-label="Mở menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="menuChinh">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="TaiLieu" asp-action="Index">Tra cứu tài liệu</a></li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            @tenNguoiDung <span class="badge bg-light text-dark">Quản trị viên</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="HoSo">Hồ sơ cá nhân</a></li>
+                            <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="DoiMatKhau">Đổi mật khẩu</a></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <form asp-area="" asp-controller="Account" asp-action="DangXuat" method="post" class="px-3">
+                                    <button type="submit" class="btn btn-sm btn-danger w-100">Đăng xuất</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <aside class="col-md-3 col-lg-2 menu-admin p-0">
+                <div class="p-3">
+                    <div class="menu-tieu-de mb-2">Quản trị hệ thống</div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="@Lop("Home")" asp-area="Admin" asp-controller="Home" asp-action="Index">Bảng điều khiển</a></li>
+                        <li class="nav-item"><a class="@Lop("NguoiDung")" asp-area="Admin" asp-controller="NguoiDung" asp-action="Index">Quản lý tài khoản</a></li>
+                        <li class="nav-item"><a class="@Lop("ThongKe")" asp-area="Admin" asp-controller="ThongKe" asp-action="Index">Thống kê hệ thống</a></li>
+                        <li class="nav-item"><a class="@Lop("NhatKy")" asp-area="Admin" asp-controller="NhatKy" asp-action="Index">Nhật ký hoạt động</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <main class="col-md-9 col-lg-10 py-4 px-4">
+                <partial name="_ThongBao" />
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

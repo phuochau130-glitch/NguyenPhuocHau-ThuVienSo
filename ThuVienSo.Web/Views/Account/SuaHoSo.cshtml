@@ -1,0 +1,60 @@
+@model CapNhatHoSoViewModel
+@{
+    ViewData["Title"] = "Cập nhật hồ sơ";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <h1 class="h3 fw-bold mb-1">Cập nhật thông tin cá nhân</h1>
+                <p class="text-secondary mb-4">Email mới sẽ được dùng cho lần đăng nhập tiếp theo. Mã định danh và vai trò do thư viện quản lý.</p>
+
+                <form asp-action="SuaHoSo" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="HoTen" class="form-label"></label>
+                            <input asp-for="HoTen" class="form-control" autocomplete="name" />
+                            <span asp-validation-for="HoTen" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" class="form-control" autocomplete="email" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="SoDienThoai" class="form-label"></label>
+                            <input asp-for="SoDienThoai" class="form-control" autocomplete="tel" />
+                            <span asp-validation-for="SoDienThoai" class="text-danger"></span>
+                        </div>
+                        @if (Model.VaiTro is VaiTro.SinhVien or VaiTro.GiangVien)
+                        {
+                            <div class="col-md-6">
+                                <label asp-for="Khoa" class="form-label"></label>
+                                <input asp-for="Khoa" class="form-control" />
+                                <span asp-validation-for="Khoa" class="text-danger"></span>
+                            </div>
+                        }
+                        else if (Model.VaiTro == VaiTro.ThuThu)
+                        {
+                            <div class="col-md-6">
+                                <label asp-for="BoPhan" class="form-label"></label>
+                                <input asp-for="BoPhan" class="form-control" />
+                                <span asp-validation-for="BoPhan" class="text-danger"></span>
+                            </div>
+                        }
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                        <a class="btn btn-outline-secondary" asp-action="HoSo">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

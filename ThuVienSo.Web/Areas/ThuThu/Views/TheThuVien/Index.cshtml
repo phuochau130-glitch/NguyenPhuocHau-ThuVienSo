@@ -1,0 +1,145 @@
+@model List<TheThuVien>
+@{
+    ViewData["Title"] = "Quản lý thẻ thư viện";
+    var trangThaiHienTai = (string?)ViewBag.TrangThai;
+    var tuKhoaHienTai = (string?)ViewBag.TuKhoa;
+    var daThanhToanHienTai = (bool?)ViewBag.DaThanhToan;
+    var danhSachTrangThai = new[]
+    {
+        TrangThaiThe.ChoDuyet, TrangThaiThe.HoatDong, TrangThaiThe.HetHan,
+        TrangThaiThe.BiKhoa, TrangThaiThe.TuChoi
+    };
+}
+
+<h3 class="mb-3">Quản lý thẻ thư viện</h3>
+
+<form method="get" class="card shadow-sm mb-4">
+    <div class="card-body row g-2">
+        <div class="col-md-4">
+            <input name="tuKhoa" value="@tuKhoaHienTai" class="form-control" placeholder="Mã thẻ, tên độc giả, mã sinh viên..." />
+        </div>
+        <div class="col-md-3">
+            <select name="trangThai" class="form-select">
+                <option value="">-- Tất cả trạng thái --</option>
+                @foreach (var tt in danhSachTrangThai)
+                {
+                    <option value="@tt" selected="@(trangThaiHienTai == tt)">@tt</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="daThanhToan" class="form-select">
+                <option value="">-- Tất cả thanh toán --</option>
+                <option value="true" selected="@(daThanhToanHienTai == true)">Đã thanh toán lệ phí</option>
+                <option value="false" selected="@(daThanhToanHienTai == false)">Chưa thanh toán lệ phí</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Lọc</button>
+        </div>
+    </div>
+</form>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-warning">Không có thẻ thư viện nào phù hợp với điều kiện lọc.</div>
+}
+else
+{
+    <p class="text-muted">Có <strong>@Model.Count</strong> thẻ thư viện.</p>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle bg-white">
+            <thead class="table-light">
+                <tr>
+                    <th>Mã thẻ</th>
+                    <th>Độc giả</th>
+                    <th>Khoa / Bộ môn</th>
+                    <th>Ngày cấp</th>
+                    <th>Ngày gia hạn</th>
+                    <th>Ngày hết hạn</th>
+                    <th>Lệ phí / Thanh toán</th>
+                    <th>Trạng thái</th>
+                    <th>Ghi chú</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var the in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@the.MaThe</td>
+                        <td>
+                            @the.DocGia.NguoiDung.HoTen<br />
+                            <small class="text-muted">@the.DocGia.MaSinhVienHoacCanBo</small>
+                        </td>
+                        <td>@(the.DocGia.Khoa ?? "—")</td>
+                        <td>@HienThi.Ngay(the.NgayCap)</td>
+                        <td>@HienThi.Ngay(the.NgayGiaHan)</td>
+                        <td>@HienThi.Ngay(the.NgayHetHan)</td>
+                        <td>
+                            <div class="fw-semibold">@HienThi.Tien(the.LePhi > 0 ? the.LePhi : QuyDinh.LePhiTheThuVien)</div>
+                            @if (the.DaThanhToan)
+                            {
+                                <span class="badge bg-success">Đã thanh toán</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Chưa thanh toán</span>
+                            }
+                        </td>
+                        <td><span class="badge @HienThi.LopTrangThai(the.TrangThai)">@the.TrangThai</span></td>
+                        <td><small class="text-muted">@(the.GhiChu ?? "—")</small></td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-1">
+                                @if (the.TrangThai == TrangThaiThe.ChoDuyet || the.TrangThai == TrangThaiThe.TuChoi)
+                                {
+                                    <form asp-action="Duyet" method="post">
+                                        <input type="hidden" name="maThe" value="@the.MaThe" />
+                                        <button type="submit" class="btn btn-sm btn-success">Duyệt</button>
+                                    </form>
+                                }
+                                <button class="btn btn-sm btn-outline-secondary" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#tt-@the.MaThe">Khác</button>
+                            </div>
+                            <div class="collapse mt-2" id="tt-@the.MaThe">
+                                <div class="border rounded p-2 bg-light">
+                                    @if (the.TrangThai == TrangThaiThe.ChoDuyet)
+                                    {
+                                        <form asp-action="TuChoi" method="post" class="mb-2">
+                                            <input type="hidden" name="maThe" value="@the.MaThe" />
+                                            <input name="lyDo" class="form-control form-control-sm mb-1" placeholder="Lý do từ chối" required />
+                                            <button type="submit" class="btn btn-sm btn-danger">Từ chối thẻ</button>
+                                        </form>
+                                    }
+                                    <form asp-action="DoiThanhToan" method="post" class="mb-2">
+                                        <input type="hidden" name="maThe" value="@the.MaThe" />
+                                        <input type="hidden" name="daThanhToan" value="@((!the.DaThanhToan).ToString().ToLowerInvariant())" />
+                                        <button type="submit" class="btn btn-sm @(the.DaThanhToan ? "btn-outline-warning" : "btn-success")">
+                                            @(the.DaThanhToan ? "Đánh dấu chưa thanh toán" : "Ghi nhận đã thanh toán")
+                                        </button>
+                                    </form>
+                                    <form asp-action="DoiTrangThai" method="post" class="mb-2">
+                                        <input type="hidden" name="maThe" value="@the.MaThe" />
+                                        <select name="trangThai" class="form-select form-select-sm mb-1">
+                                            @foreach (var tt in danhSachTrangThai)
+                                            {
+                                                <option value="@tt" selected="@(the.TrangThai == tt)">@tt</option>
+                                            }
+                                        </select>
+                                        <input name="ghiChu" class="form-control form-control-sm mb-1" placeholder="Ghi chú (tùy chọn)" />
+                                        <button type="submit" class="btn btn-sm btn-primary">Đổi trạng thái</button>
+                                    </form>
+                                    <form asp-action="Xoa" method="post"
+                                          onsubmit="return confirm('Bạn chắc chắn muốn xóa thẻ @the.MaThe?');">
+                                        <input type="hidden" name="maThe" value="@the.MaThe" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Xóa thẻ</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

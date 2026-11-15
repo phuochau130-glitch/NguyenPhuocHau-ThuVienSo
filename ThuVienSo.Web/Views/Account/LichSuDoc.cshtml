@@ -1,0 +1,146 @@
+@model LichSuDocViewModel
+@{
+    ViewData["Title"] = "Lịch sử đọc";
+}
+
+<h3 class="mb-3">Lịch sử đọc & giao dịch</h3>
+
+<ul class="nav nav-tabs mb-3" id="tabLichSu" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="da-doc-tab" data-bs-toggle="tab" data-bs-target="#da-doc" type="button" role="tab">
+            Tài liệu đã đọc (@Model.TaiLieuDaDoc.Count)
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="phieu-tab" data-bs-toggle="tab" data-bs-target="#phieu" type="button" role="tab">
+            Phiếu mượn sách (@Model.PhieuMuon.Count)
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="yeucau-tab" data-bs-toggle="tab" data-bs-target="#yeucau" type="button" role="tab">
+            Yêu cầu đọc tài liệu số (@Model.YeuCau.Count)
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="da-doc" role="tabpanel">
+        @if (Model.TaiLieuDaDoc.Count == 0)
+        {
+            <div class="alert alert-info">Bạn chưa mở tài liệu nào. Những tài liệu đã xem sẽ xuất hiện ở đây để bạn đọc tiếp.</div>
+        }
+        else
+        {
+            <div class="row g-3">
+                @foreach (var item in Model.TaiLieuDaDoc)
+                {
+                    var taiLieu = item.TaiLieu;
+                    var actionDoc = taiLieu.BanSach is not null ? "XemTruoc" : "Doc";
+                    <div class="col-md-6 col-xl-4">
+                        <div class="card h-100 shadow-sm">
+                            @if (!string.IsNullOrWhiteSpace(taiLieu.DuongDanAnhBia))
+                            {
+                                <img src="@taiLieu.DuongDanAnhBia" class="card-img-top" alt="Bìa @taiLieu.TenTaiLieu"
+                                     style="height: 190px; object-fit: cover;" />
+                            }
+                            <div class="card-body d-flex flex-column">
+                                <span class="small text-secondary mb-1">@taiLieu.LoaiTaiLieu</span>
+                                <h5 class="card-title">@taiLieu.TenTaiLieu</h5>
+                                <p class="small text-muted">Lần đọc gần nhất: @item.LanDocGanNhat.ToString("dd/MM/yyyy HH:mm")</p>
+                                <a class="btn btn-primary mt-auto" asp-controller="TaiLieu" asp-action="@actionDoc"
+                                   asp-route-id="@taiLieu.MaTaiLieu">Đọc tiếp</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+    <div class="tab-pane fade" id="phieu" role="tabpanel">
+        @if (Model.PhieuMuon.Count == 0)
+        {
+            <div class="alert alert-info">Bạn chưa có phiếu mượn nào.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle bg-white">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Mã phiếu</th>
+                            <th>Tên sách</th>
+                            <th>Ngày mượn</th>
+                            <th>Hạn trả</th>
+                            <th>Ngày trả</th>
+                            <th>Trạng thái</th>
+                            <th>Tiền phạt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in Model.PhieuMuon)
+                        {
+                            <tr>
+                                <td>@p.MaPhieu</td>
+                                <td>
+                                    <a asp-controller="TaiLieu" asp-action="ChiTiet" asp-route-id="@p.Sach.TaiLieu.MaTaiLieu">
+                                        @p.Sach.TaiLieu.TenTaiLieu
+                                    </a>
+                                </td>
+                                <td>@HienThi.NgayGio(p.NgayMuon)</td>
+                                <td>@HienThi.Ngay(p.NgayPhaiTra)</td>
+                                <td>@HienThi.Ngay(p.NgayTraThucTe)</td>
+                                <td><span class="badge @HienThi.LopTrangThai(p.TrangThai)">@p.TrangThai</span></td>
+                                <td>@HienThi.Tien(p.TienPhat)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    <div class="tab-pane fade" id="yeucau" role="tabpanel">
+        @if (Model.YeuCau.Count == 0)
+        {
+            <div class="alert alert-info">Bạn chưa có yêu cầu đọc tài liệu số nào.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle bg-white">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Mã yêu cầu</th>
+                            <th>Tài liệu</th>
+                            <th>Ngày yêu cầu</th>
+                            <th>Lý do</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var y in Model.YeuCau)
+                        {
+                            <tr>
+                                <td>@y.MaYeuCau</td>
+                                <td>
+                                    <a asp-controller="TaiLieu" asp-action="ChiTiet" asp-route-id="@y.MaTaiLieuSo">
+                                        @y.TaiLieuSo.TaiLieu.TenTaiLieu
+                                    </a>
+                                </td>
+                                <td>@HienThi.NgayGio(y.NgayYeuCau)</td>
+                                <td><small>@(y.LyDoTruyCap ?? "—")</small></td>
+                                <td><span class="badge @HienThi.LopTrangThai(y.TrangThai)">@y.TrangThai</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var triggerEl = document.querySelector('#tabLichSu button[data-bs-toggle="tab"]');
+    </script>
+}

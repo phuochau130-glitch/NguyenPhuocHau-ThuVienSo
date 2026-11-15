@@ -1,0 +1,43 @@
+﻿@model DoiMatKhauViewModel
+@{
+    ViewData["Title"] = "Đổi mật khẩu";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="mb-3">Đổi mật khẩu</h3>
+
+                <form asp-action="DoiMatKhau" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="MatKhauCu" class="form-label"></label>
+                        <input asp-for="MatKhauCu" class="form-control" />
+                        <span asp-validation-for="MatKhauCu" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MatKhauMoi" class="form-label"></label>
+                        <input asp-for="MatKhauMoi" class="form-control" />
+                        <span asp-validation-for="MatKhauMoi" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="XacNhanMatKhauMoi" class="form-label"></label>
+                        <input asp-for="XacNhanMatKhauMoi" class="form-control" />
+                        <span asp-validation-for="XacNhanMatKhauMoi" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Cập nhật mật khẩu</button>
+                    <a class="btn btn-outline-secondary" asp-action="HoSo">Quay lại</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

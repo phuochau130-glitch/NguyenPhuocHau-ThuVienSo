@@ -1,0 +1,96 @@
+@model List<YeuCauTaiLieu>
+@{
+    ViewData["Title"] = "Duyệt yêu cầu đọc";
+    var trangThaiHienTai = (string?)ViewBag.TrangThai;
+    var tuKhoaHienTai = (string?)ViewBag.TuKhoa;
+    var danhSachTrangThai = new[]
+    {
+        TrangThaiYeuCau.ChoDuyet, TrangThaiYeuCau.DaPheDuyet, TrangThaiYeuCau.TuChoi
+    };
+}
+
+<h3 class="mb-3">Duyệt yêu cầu xin quyền đọc</h3>
+
+<form method="get" class="card shadow-sm mb-4">
+    <div class="card-body row g-2">
+        <div class="col-md-4">
+            <input name="tuKhoa" value="@tuKhoaHienTai" class="form-control" placeholder="Mã yêu cầu, tên độc giả, tên tài liệu..." />
+        </div>
+        <div class="col-md-3">
+            <select name="trangThai" class="form-select">
+                <option value="">-- Tất cả trạng thái --</option>
+                @foreach (var tt in danhSachTrangThai)
+                {
+                    <option value="@tt" selected="@(trangThaiHienTai == tt)">@tt</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Lọc</button>
+        </div>
+    </div>
+</form>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-warning">Không có yêu cầu nào phù hợp với điều kiện lọc.</div>
+}
+else
+{
+    <p class="text-muted">Có <strong>@Model.Count</strong> yêu cầu.</p>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle bg-white">
+            <thead class="table-light">
+                <tr>
+                    <th>Mã yêu cầu</th>
+                    <th>Độc giả</th>
+                    <th>Tài liệu</th>
+                    <th>Ngày yêu cầu</th>
+                    <th>Lý do</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var y in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@y.MaYeuCau</td>
+                        <td>
+                            @y.DocGia.NguoiDung.HoTen<br />
+                            <small class="text-muted">@y.DocGia.MaSinhVienHoacCanBo</small>
+                        </td>
+                        <td>
+                            <a asp-area="" asp-controller="TaiLieu" asp-action="ChiTiet" asp-route-id="@y.MaTaiLieuSo">
+                                @y.TaiLieuSo.TaiLieu.TenTaiLieu
+                            </a>
+                        </td>
+                        <td>@HienThi.NgayGio(y.NgayYeuCau)</td>
+                        <td><small>@(y.LyDoTruyCap ?? "—")</small></td>
+                        <td><span class="badge @HienThi.LopTrangThai(y.TrangThai)">@y.TrangThai</span></td>
+                        <td>
+                            @if (y.TrangThai == TrangThaiYeuCau.ChoDuyet)
+                            {
+                                <div class="d-flex gap-1">
+                                    <form asp-action="PheDuyet" method="post">
+                                        <input type="hidden" name="maYeuCau" value="@y.MaYeuCau" />
+                                        <button type="submit" class="btn btn-sm btn-success">Phê duyệt</button>
+                                    </form>
+                                    <form asp-action="TuChoi" method="post"
+                                          onsubmit="return confirm('Từ chối yêu cầu @y.MaYeuCau?');">
+                                        <input type="hidden" name="maYeuCau" value="@y.MaYeuCau" />
+                                        <button type="submit" class="btn btn-sm btn-danger">Từ chối</button>
+                                    </form>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

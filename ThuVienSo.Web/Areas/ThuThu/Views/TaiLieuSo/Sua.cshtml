@@ -1,0 +1,22 @@
+@model TaiLieuSoFormViewModel
+@{
+    ViewData["Title"] = "Sửa tài liệu số";
+}
+
+<h3 class="mb-3">Sửa tài liệu số <span class="text-muted">(@Model.MaTaiLieuSo)</span></h3>
+
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <form asp-action="Sua" method="post" enctype="multipart/form-data">
+            <partial name="_FormTaiLieuSo" model="Model" />
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                <a class="btn btn-outline-secondary" asp-action="Index">Quay lại</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,49 @@
+﻿@model List<YeuCauTaiLieu>
+@{
+    ViewData["Title"] = "Yêu cầu xin quyền đọc";
+}
+
+<h3 class="mb-3">Yêu cầu xin quyền đọc tài liệu</h3>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">
+        Bạn chưa gửi yêu cầu nào. Khi gặp tài liệu bị giới hạn truy cập, hãy gửi yêu cầu để được thủ thư phê duyệt.
+    </div>
+    <a class="btn btn-primary" asp-controller="TaiLieu" asp-action="Index">Tra cứu tài liệu</a>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle bg-white">
+            <thead class="table-light">
+                <tr>
+                    <th>Mã yêu cầu</th>
+                    <th>Tài liệu</th>
+                    <th>Ngày yêu cầu</th>
+                    <th>Lý do</th>
+                    <th>Trạng thái</th>
+                    <th>Thủ thư xử lý</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var y in Model)
+                {
+                    <tr>
+                        <td>@y.MaYeuCau</td>
+                        <td>@y.TaiLieuSo.TaiLieu.TenTaiLieu</td>
+                        <td>@y.NgayYeuCau.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@(y.LyDoTruyCap ?? "—")</td>
+                        <td><span class="badge @HienThi.LopTrangThai(y.TrangThai)">@y.TrangThai</span></td>
+                        <td>@(y.ThuThu?.NguoiDung.HoTen ?? "—")</td>
+                        <td>
+                            <a class="btn btn-sm btn-outline-primary"
+                               asp-controller="TaiLieu" asp-action="ChiTiet" asp-route-id="@y.TaiLieuSo.TaiLieu.MaTaiLieu">Xem tài liệu</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
