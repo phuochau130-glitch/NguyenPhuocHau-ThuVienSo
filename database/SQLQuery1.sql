@@ -281,11 +281,11 @@ GO
 IF NOT EXISTS (SELECT 1 FROM NguoiDung)
 BEGIN
     INSERT INTO NguoiDung (maNguoiDung, hoTen, email, soDienThoai, matKhau, trangThai) VALUES
-    ('ND001', N'Nguyễn Văn Admin', 'admin@tdmu.edu.vn', '0901111222', 'hashed_pwd_123', N'Hoạt động'),
-    ('ND002', N'Trần Thị Thủ Thư', 'thuthu01@tdmu.edu.vn', '0902222333', 'hashed_pwd_123', N'Hoạt động'),
-    ('ND003', N'Lê Hoàng Sinh Viên', 'svhoang@tdmu.edu.vn', '0903333444', 'hashed_pwd_123', N'Hoạt động'),
-    ('ND004', N'Phạm Minh Giảng Viên', 'gvminh@tdmu.edu.vn', '0904444555', 'hashed_pwd_123', N'Hoạt động'),
-    ('ND005', N'Đặng Thu Hà', 'svha@tdmu.edu.vn', '0905555666', 'hashed_pwd_123', N'Hoạt động');
+    ('ND001', N'Nguyễn Văn Admin', 'admin@tdmu.edu.vn', '0901111222', '123456', N'Hoạt động'),
+    ('ND002', N'Trần Thị Thủ Thư', 'thuthu01@tdmu.edu.vn', '0902222333', '123456', N'Hoạt động'),
+    ('ND003', N'Lê Hoàng Sinh Viên', 'svhoang@tdmu.edu.vn', '0903333444', '123456', N'Hoạt động'),
+    ('ND004', N'Phạm Minh Giảng Viên', 'gvminh@tdmu.edu.vn', '0904444555', '123456', N'Hoạt động'),
+    ('ND005', N'Đặng Thu Hà', 'svha@tdmu.edu.vn', '0905555666', '123456', N'Hoạt động');
 END
 GO
 IF NOT EXISTS (SELECT 1 FROM QuanTriVien)
